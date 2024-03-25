@@ -1,25 +1,15 @@
-bootstrap_go_package {
-    name: "soong-librknnrt",
-    pkgPath: "android/soong/librknnrt",
-    deps: [
-        "blueprint",
-        "blueprint-pathtools",
-        "soong",
-        "soong-android",
-        "soong-cc",
-        "soong-genrule",
-    ],
-    srcs: [
-          "Android.go",
-    ],
-    pluginFor: ["soong_build"],
-}
-
-cc_librknnrt_prebuilt_library_shared {
+cc_prebuilt_library_shared {
     name: "librknnrt",
     compile_multilib: "both",
 
-    // some prop generate by Android.go
+    target: {
+	android_arm: {
+            srcs: ["Android/librknn_api/armeabi-v7a/librknnrt.so"],
+	},
+        android_arm64: {
+            srcs: ["Android/librknn_api/arm64-v8a/librknnrt.so"],
+	},
+    },
 
     strip: {
         none: true,
@@ -28,13 +18,21 @@ cc_librknnrt_prebuilt_library_shared {
     vendor: true,
 }
 
-cc_rockchip_prebuilt_binary {
+cc_prebuilt_binary {
     name: "rknn_server",
+    target: {
+	android_arm: {
+            srcs: ["Android/rknn_server/arm/rknn_server"],
+	},
+        android_arm64: {
+            srcs: ["Android/rknn_server/arm64/rknn_server"],
+	},
+    },
+
     init_rc: ["init.rknn_server.rc"],
     strip: {
         none: true,
     },
     check_elf_files: false,
     vendor: true,
-    npu: true,
 }

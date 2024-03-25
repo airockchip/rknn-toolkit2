@@ -1,11 +1,14 @@
-The following <TARGET_PLATFORM> represents RK3566_RK3568,RK3562 or RK3588.
+The following <TARGET_PLATFORM> represents RK3566_RK3568,RK3562,RK3576 or RK3588.
 # Aarch64 Linux Demo
 ## Build
 
-modify `GCC_COMPILER` on `build-linux.sh` for target platform, then execute
+First export `GCC_COMPILER`, for example `export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu`, then execute:
 
 ```
-./build-linux.sh
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
+
+# such as: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ## Install
@@ -39,10 +42,13 @@ export LD_LIBRARY_PATH=./lib
 # Android Demo
 ## Build
 
-modify `ANDROID_NDK_PATH` on `build-android.sh` for target platform, then execute
+First export `ANDROID_NDK_PATH`, for example `export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`, then execute:
 
 ```
-./build-android.sh
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
+
+# sush as: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ## Install

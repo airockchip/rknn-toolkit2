@@ -310,7 +310,11 @@ typedef struct rga_info {
         int job_handle;
     };
 
-    char reserve[402];
+    uint16_t rgba5551_flags;
+    uint8_t rgba5551_alpha0;
+    uint8_t rgba5551_alpha1;
+
+    char reserve[398];
 } rga_info_t;
 
 

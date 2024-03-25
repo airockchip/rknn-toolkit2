@@ -64,12 +64,12 @@ namespace rknpu2
                         }
                         if (output_index % 2 == 0)
                         {
-                            dst[output_index / 2] = int4 << 4;
+                            dst[output_index / 2] = int4;
                         }
                         else
                         {
                             int8_t temp = dst[output_index / 2];
-                            int8_t result = temp | int4;
+                            int8_t result = temp | (int4 << 4);
                             dst[output_index / 2] = result;
                         }
                     }
@@ -186,12 +186,16 @@ namespace rknpu2
         }
     }
 
+    template void perf_layout_to_norm_layout<int8_t, int8_t>(int8_t *src, int8_t *dst, int32_t M, int32_t K,
+                                                             int32_t K_remain, int32_t subK);
     template void perf_layout_to_norm_layout<int16_t, int16_t>(int16_t *src, int16_t *dst, int32_t M, int32_t K,
                                                                int32_t K_remain, int32_t subK);
     template void perf_layout_to_norm_layout<int32_t, int32_t>(int32_t *src, int32_t *dst, int32_t M, int32_t K,
                                                                int32_t K_remain, int32_t subK);
     template void perf_layout_to_norm_layout<float, float>(float *src, float *dst, int32_t M, int32_t K, int32_t K_remain,
                                                            int32_t subK);
+    template void perf_layout_to_norm_layout<float16, float16>(float16 *src, float16 *dst, int32_t M, int32_t K, int32_t K_remain,
+                                                               int32_t subK);
 
     template <typename T>
     bool arraysEqual(const std::vector<T> &arr1, const std::vector<T> &arr2, float eps)
@@ -215,6 +219,7 @@ namespace rknpu2
     template bool arraysEqual<float>(const std::vector<float> &arr1, const std::vector<float> &arr2, float eps);
     template bool arraysEqual<int32_t>(const std::vector<int32_t> &arr1, const std::vector<int32_t> &arr2, float eps);
     template bool arraysEqual<int16_t>(const std::vector<int16_t> &arr1, const std::vector<int16_t> &arr2, float eps);
+    template bool arraysEqual<int8_t>(const std::vector<int8_t> &arr1, const std::vector<int8_t> &arr2, float eps);
 
     template <typename T>
     bool arraysCosineSimilarity(const std::vector<T> &arr1, const std::vector<T> &arr2, float eps)
@@ -225,13 +230,15 @@ namespace rknpu2
         }
 
         // 计算点积
+#pragma omp parallel for reduction(+ : dotProduct)
         double dotProduct = 0.0;
         for (size_t i = 0; i < arr1.size(); ++i)
         {
             dotProduct += arr1[i] * arr2[i];
         }
 
-        // 计算向量范数
+// 计算向量范数
+#pragma omp parallel for reduction(+ : normA, normB)
         double normA = 0.0, normB = 0.0;
         for (size_t i = 0; i < arr1.size(); ++i)
         {
@@ -257,4 +264,4 @@ namespace rknpu2
                                                   float eps);
     template bool arraysCosineSimilarity<int16_t>(const std::vector<int16_t> &arr1, const std::vector<int16_t> &arr2,
                                                   float eps);
-}
+} // namespace rknpu2

@@ -33,7 +33,7 @@
 #include <system/graphics.h>
 #include <cutils/native_handle.h>
 
-#ifdef ANDROID_12
+#if defined(ANDROID_12) || defined(USE_HARDWARE_ROCKCHIP)
 #include <hardware/hardware_rockchip.h>
 #endif
 
@@ -310,7 +310,11 @@ typedef struct rga_info {
         int job_handle;
     };
 
-    char reserve[402];
+    uint16_t rgba5551_flags;
+    uint8_t rgba5551_alpha0;
+    uint8_t rgba5551_alpha1;
+
+    char reserve[398];
 } rga_info_t;
 
 

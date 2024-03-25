@@ -1,28 +1,29 @@
 # RKNN Custom GPU op Demo
 This demo is an example of showing how to implement custom gpu op on c demo for rknn model, using 'ArgMax' as an example.
 
-The example model is the pp-human-seg-v2_mobile from PaddleSeg. It is recommended referring to RKNN-Toolkit2 for  how to replace existed onnx op, referring to  [RKNN-Toolkit2 example](https://github.com/airockchip/rknn-toolkit2/tree/master/rknn-toolkit2/examples/functions/custom_op/replace_onnx) for more details.
+The example model is the pp-human-seg-v2_mobile from PaddleSeg. It is recommended referring to RKNN-Toolkit2 for  how to replace existed onnx op, referring to  [README.md](model/convert/README.md) for more details.
 
 ## Model Source
 
-The example demo comes from open source project of PaddleSeg. The specfication can be seen with the following link: [link_PP-HumanSeg](https://github.com/PaddlePaddle/PaddleSeg/tree/release/2.9/contrib/PP-HumanSeg)  
+The example demo comes from open source project of PaddleSeg. The specfication can be seen with the following link: [PP-HumanSeg](https://github.com/PaddlePaddle/PaddleSeg/tree/release/2.9/contrib/PP-HumanSeg)  
 
-The example model is the PP-HumanSegV2-Mobile, which can be downloaded with this link: [link_PP-HumanSegV2-Mobile](https://paddleseg.bj.bcebos.com/dygraph/pp_humanseg_v2/human_pp_humansegv1_mobile_192x192_inference_model.zip).
+The example model is the PP-HumanSegV2-Mobile, which can be downloaded with this link: [PP-HumanSegV2-Mobile](https://paddleseg.bj.bcebos.com/dygraph/pp_humanseg_v2/human_pp_humansegv1_mobile_192x192_inference_model.zip).
 
 Note: Referring to Paddle2onnx for converting paddle model to onnx model.
 
-The converted RKNN models of platforms RK3562, RK356X and RK3588 are located in model folder.
+The converted RKNN models of platforms RK3562, RK3566, RK3568,RK3576, RK3588 are located in model folder.
 
 # Aarch64 Linux Demo
 
 ## Build
 
-modify `GCC_COMPILER` on `build-linux_<TARGET_PLATFORM>.sh` for target platform,
-
-then execute
+First export `GCC_COMPILER`, for example `export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu`, then execute:
 
 ```
-./build-linux_<TARGET_PLATFORM>.sh
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
+
+# such as: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ## *Install*
@@ -55,10 +56,13 @@ export LD_LIBRARY_PATH=./lib
 
 ## Build
 
-modify `ANDROID_NDK_PATH` on `build-android_<TARGET_PLATFORM>.sh` for target platform, then execute
+First export `ANDROID_NDK_PATH`, for example `export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`, then execute:
 
 ```
-./build-android_<TARGET_PLATFORM>.sh
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
+
+# sush as: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ## Install
@@ -93,7 +97,7 @@ Note: Different platforms, different versions of tools and drivers may have slig
 
 ## Plug-in Librarys
 
-If users want to veiry the accuracy of their own implemented custom op,  the accuracy analysis from the rknn-toolkit2 should be used for this purpose. To do this, the plug-in library need to be compiled for single custom op implmentation for accuracy analysis. 
+If users want to verify the accuracy of their own implemented custom op,  the accuracy analysis from the rknn-toolkit2 should be used for this purpose. To do this, the plug-in library need to be compiled for single custom op implmentation for accuracy analysis. 
 
 Compile plug-in library, the source file is located at the **./src/rknn_custom_op_opencl_plugin_lib.cpp**
 

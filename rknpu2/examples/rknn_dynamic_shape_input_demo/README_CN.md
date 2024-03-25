@@ -2,7 +2,7 @@
 这是一个使用RKNN C API进行动态形状输入推理的演示应用。您可以在这个应用中看到如何使用RKNN 动态形状 C API对图像进行分类。
 
 # 如何使用
-1. 克隆或下载此代码库ssh://git@10.10.10.59:8001/hpc/rknpu2.git。
+1. 克隆或下载此代码库https://github.com/rockchip-linux/rknn-toolkit2/tree/master/rknpu2。
 2. 在终端中进入动态形状推理Demo目录。
 ```
 cd examples/rknn_dynamic_shape_input_demo
@@ -25,14 +25,25 @@ export LD_LIBRARY_PATH=./lib
 
 # 编译说明
 ## Arm Linux系统
-为特定的芯片平台指定交叉编译器路径，修改`build-linux_<TARGET_PLATFORM>.sh`中的`GCC_COMPILER`,其中TARGET_PLATFORM为芯片名，然后执行
+
+首先导入GCC_COMPILER，例如`export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu 
+`，然后执行如下命令：
+
 ```
-./build-linux_<TARGET_PLATFORM>.sh
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
+
+# 例如: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 ## Android系统
-指定Android NDK的路径，修改`build-android_<TARGET_PLATFORM>.sh`中的`ANDROID_NDK_PATH`，其中TARGET_PLATFORM为芯片名，然后执行
+
+首先导入ANDROID_NDK_PATH，例如`export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`，然后执行如下命令：
+
 ```
-./build-android_<TARGET_PLATFORM>.sh
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
+
+# 例如: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 # 包含的功能

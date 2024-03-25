@@ -17,18 +17,13 @@ Please refer to this link:  https://github.com/airockchip/rknn_model_zoo/tree/ma
 
 ### Compiling && Building
 
-According to the target platform, modifying the path for Android NDK on 'build-android_<TARGET_PLATFORM>.sh'
+First export `ANDROID_NDK_PATH`, for example `export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`, then execute:
 
-for example,
-
-```sh
-ANDROID_NDK_PATH=~/opt/tool_chain/android-ndk-r17
 ```
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
 
-then, running this script：
-
-```sh
-./build-android_<TARGET_PLATFORM>.sh
+# sush as: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ### Push all build output file to the board
@@ -55,16 +50,13 @@ export LD_LIBRARY_PATH=./lib
 
 ### Compiling && Building
 
-According to the target platform, modifying the path for 'TOOL_CHAIN' on 'build-android_<TARGET_PLATFORM>.sh'
+First export `GCC_COMPILER`, for example `export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu`, then execute:
 
-```sh
-export TOOL_CHAIN=~/opt/tool_chain/gcc-9.3.0-x86_64_aarch64-linux-gnu/host
 ```
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
 
-then run the script：
-
-```sh
-./build-linux_<TARGET_PLATFORM>.sh
+# such as: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ### Push all build output file to the board

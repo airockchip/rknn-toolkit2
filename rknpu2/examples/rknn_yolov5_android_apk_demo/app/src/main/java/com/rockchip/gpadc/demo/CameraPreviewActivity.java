@@ -12,6 +12,7 @@ import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.graphics.Typeface;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -113,6 +114,8 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
             createFile(mModelName, R.raw.yolov5s_rk3566);
         } else if (platform.equals("rk3562")) {
             createFile(mModelName, R.raw.yolov5s_rk3562);
+        } else if (platform.equals("rk3576")) {
+            createFile(mModelName, R.raw.yolov5s_rk3576);
         } else {
             Toast toast = Toast.makeText(this, "Can not get platform use RK3588 instead.", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -300,6 +303,16 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
         int nearest_width_index = 0;
         int nearest_width_value = 1920;
 
+        // TODO, android sdk > android 14
+        // mCamera0.setParameters(parameters); maybe fail under android 14
+        if (Build.VERSION.SDK_INT >=34) {
+            Camera.Size size = parameters.getPreviewSize();
+            CAMERA_PREVIEW_WIDTH = size.width;
+            CAMERA_PREVIEW_HEIGHT = size.height;
+            Log.i(TAG, "Use preview Size = " + CAMERA_PREVIEW_WIDTH + "x" + CAMERA_PREVIEW_HEIGHT);
+            return;
+        }
+
         List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
         for (int i = 0; i < sizes.size(); i++) {
             Camera.Size size = sizes.get(i);
@@ -321,7 +334,7 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
             CAMERA_PREVIEW_HEIGHT = sizes.get(nearest_width_index).height;
         }
 
-        Log.w(TAG, "Use preview Size = " + CAMERA_PREVIEW_WIDTH + "x" + CAMERA_PREVIEW_HEIGHT);
+        Log.i(TAG, "Use preview Size = " + CAMERA_PREVIEW_WIDTH + "x" + CAMERA_PREVIEW_HEIGHT);
 
         parameters.setPreviewSize(CAMERA_PREVIEW_WIDTH, CAMERA_PREVIEW_HEIGHT);
 

@@ -1,4 +1,4 @@
-# TFLite MobileNet V2
+# TFLite MobileNet V1
 
 ## Model Source
 The model used in this example come from the following open source projects:  

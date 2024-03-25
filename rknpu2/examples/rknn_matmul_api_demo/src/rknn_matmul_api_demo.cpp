@@ -14,9 +14,9 @@
                 Includes
 -------------------------------------------*/
 #include "fp16/Float16.h"
-#include "rknn_matmul_api.h"
-#include "rknn_api.h"
 #include "matmul_utils.h"
+#include "rknn_api.h"
+#include "rknn_matmul_api.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +36,14 @@ static inline int64_t getCurrentTimeUs()
   return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
+static void set_mem_from_int8_to_int4(int8_t *dst, int8_t *src, int size)
+{
+  for (int idx = 0; idx < size; idx += 2)
+  {
+    dst[idx / 2] = ((src[idx]) & 0xf) | ((src[idx + 1] << 4) & 0xf0);
+  }
+}
+
 // 一维矩阵乘法函数
 template <typename Ti, typename To>
 std::vector<To> matrixMultiply(const Ti *A, const Ti *B, int M, int K, int N)
@@ -49,9 +57,58 @@ std::vector<To> matrixMultiply(const Ti *A, const Ti *B, int M, int K, int N)
       float sum = 0;
       for (int k = 0; k < K; ++k)
       {
+#if DEBUG_PRINT
+        printf("A[%d][%d] = %d, B[%d][%d] = %d, A*B = %6d\n", i, k, A[i * K + k], k, j, B[k * N + j],
+               A[i * K + k] * B[k * N + j]);
+#endif
         sum += (float)A[i * K + k] * (float)B[k * N + j];
       }
       result[i * N + j] = sum;
+    }
+  }
+
+  return result;
+}
+
+// 一维矩阵混合量化乘法函数
+template <typename Ta, typename Tb, typename Tc>
+std::vector<Tc> matrixMultiplyWithHybridQuant(const Ta *A, const Tb *B, int M, int K, int N, float input_scale,
+                                              float weight_scale, float output_scale)
+{
+  std::vector<Tc> result(M * N, 0);
+
+  for (int i = 0; i < M; ++i)
+  {
+    for (int j = 0; j < N; ++j)
+    {
+      float sum = 0;
+      for (int k = 0; k < K; ++k)
+      {
+        sum += (float)A[i * K + k] * (float)B[k * N + j];
+      }
+      result[i * N + j] = sum * input_scale * weight_scale / output_scale;
+    }
+  }
+
+  return result;
+}
+
+// 一维矩阵乘法函数
+std::vector<int8_t> matrixMultiplyWithQuant(const int8_t *A, const int8_t *B, int M, int K, int N, float input_scale,
+                                            float weight_scale, float output_scale)
+{
+  std::vector<int8_t> result(M * N, 0);
+
+  for (int i = 0; i < M; ++i)
+  {
+    for (int j = 0; j < N; ++j)
+    {
+      float sum = 0;
+      for (int k = 0; k < K; ++k)
+      {
+        sum += (float)A[i * K + k] * (float)B[k * N + j];
+      }
+      result[i * N + j] = sum * input_scale * weight_scale / output_scale;
     }
   }
 
@@ -98,6 +155,143 @@ static int8_t get_virt_addr_int4(void *virt_addr, int index)
     int4 = int4 | 0xf0;
   }
   return int4;
+}
+
+static void dump_matmul_tensor_reverse(rknn_tensor_mem *tensor, rknn_matmul_tensor_attr *attr)
+{
+  printf("  %s%s:\n", attr->name, get_dims_string(attr));
+  // normal layout
+  if (attr->n_dims == 2)
+  {
+    for (uint32_t j = 0; j < attr->dims[0]; ++j)
+    {
+      for (uint32_t i = 0; i < attr->dims[1]; ++i)
+      {
+        void *virt_addr = (void *)((size_t)tensor->virt_addr + tensor->offset);
+        if (attr->type == RKNN_TENSOR_INT8)
+        {
+          printf(" %4d", ((int8_t *)virt_addr)[i * attr->dims[1] + j]);
+        }
+        else if (attr->type == RKNN_TENSOR_INT32)
+        {
+          printf(" %6d", ((int32_t *)virt_addr)[i * attr->dims[1] + j]);
+        }
+        else if (attr->type == RKNN_TENSOR_FLOAT16)
+        {
+          printf(" %5.2f", (float)(((float16 *)virt_addr)[i * attr->dims[1] + j]));
+        }
+        else if (attr->type == RKNN_TENSOR_FLOAT32)
+        {
+          printf(" %5.2f", ((float *)virt_addr)[i * attr->dims[1] + j]);
+        }
+        else if (attr->type == RKNN_TENSOR_INT16)
+        {
+          printf(" %d", ((int16_t *)virt_addr)[i * attr->dims[1] + j]);
+        }
+        else if (attr->type == RKNN_TENSOR_INT4)
+        {
+          int index = i * attr->dims[1] + j;
+          int8_t int4 = get_virt_addr_int4(virt_addr, index);
+          printf("%d ", int4);
+        }
+      }
+      printf("\n");
+    }
+    printf("\n");
+  }
+  // perf layout
+  else if (attr->n_dims == 3)
+  {
+    for (uint32_t i = 0; i < attr->dims[0]; ++i)
+    {
+      for (uint32_t j = 0; j < attr->dims[1]; ++j)
+      {
+        for (uint32_t k = 0; k < attr->dims[2]; ++k)
+        {
+          void *virt_addr = (void *)((size_t)tensor->virt_addr + tensor->offset);
+          if (attr->type == RKNN_TENSOR_INT4)
+          {
+            int index = (i * attr->dims[1] + j) * attr->dims[2] + k;
+            int8_t int4 = get_virt_addr_int4(virt_addr, index);
+            printf("%d ", int4);
+          }
+          else if (attr->type == RKNN_TENSOR_INT8)
+          {
+            printf(" %4d ", ((int8_t *)virt_addr)[(i * attr->dims[1] + j) * attr->dims[2] + k]);
+          }
+          else if (attr->type == RKNN_TENSOR_INT16)
+          {
+            printf(" %6d ", ((int16_t *)virt_addr)[(i * attr->dims[1] + j) * attr->dims[2] + k]);
+          }
+          else if (attr->type == RKNN_TENSOR_INT32)
+          {
+            printf(" %6d ", ((int32_t *)virt_addr)[(i * attr->dims[1] + j) * attr->dims[2] + k]);
+          }
+          else if (attr->type == RKNN_TENSOR_FLOAT16)
+          {
+            printf(" %5.2f ", (float)(((float16 *)virt_addr)[(i * attr->dims[1] + j) * attr->dims[2] + k]));
+          }
+          else if (attr->type == RKNN_TENSOR_FLOAT32)
+          {
+            printf(" %5.2f ", ((float *)virt_addr)[(i * attr->dims[1] + j) * attr->dims[2] + k]);
+          }
+        }
+        printf("\n");
+      }
+      printf("\n");
+    }
+  }
+  // native layout
+  else if (attr->n_dims == 4)
+  {
+    // N / 16
+    for (uint32_t n = 0; n < attr->dims[0]; ++n)
+    {
+      // K / 32
+      for (uint32_t k = 0; k < attr->dims[1]; ++k)
+      {
+        // 16
+        for (uint32_t nn = 0; nn < attr->dims[2]; ++nn)
+        {
+          // 32
+          for (uint32_t kk = 0; kk < attr->dims[3]; kk++)
+          {
+            void *virt_addr = (void *)((size_t)tensor->virt_addr + tensor->offset);
+            if (attr->type == RKNN_TENSOR_INT4)
+            {
+              int index = ((n * attr->dims[1] + k) * attr->dims[2] + nn) * attr->dims[3] + kk;
+              int8_t int4 = get_virt_addr_int4(virt_addr, index);
+              printf("%d ", int4);
+            }
+            else if (attr->type == RKNN_TENSOR_INT8)
+            {
+              printf(" %4d ",
+                     ((int8_t *)virt_addr)[((n * attr->dims[1] + k) * attr->dims[2] + nn) * attr->dims[3] + kk]);
+            }
+            else if (attr->type == RKNN_TENSOR_INT32)
+            {
+              printf(" %6d ",
+                     ((int32_t *)virt_addr)[((n * attr->dims[1] + k) * attr->dims[2] + nn) * attr->dims[3] + kk]);
+            }
+            else if (attr->type == RKNN_TENSOR_FLOAT16)
+            {
+              printf(
+                  " %5.2f ",
+                  (float)(((float16 *)virt_addr)[((n * attr->dims[1] + k) * attr->dims[2] + nn) * attr->dims[3] + kk]));
+            }
+            else if (attr->type == RKNN_TENSOR_FLOAT32)
+            {
+              printf(" %5.2f ",
+                     ((float *)virt_addr)[((n * attr->dims[1] + k) * attr->dims[2] + nn) * attr->dims[3] + kk]);
+            }
+          }
+          printf("\n");
+        }
+        printf("\n");
+      }
+      printf("\n");
+    }
+  }
 }
 
 static void dump_matmul_tensor(rknn_tensor_mem *tensor, rknn_matmul_tensor_attr *attr)
@@ -239,7 +433,9 @@ static void dump_matmul_tensor(rknn_tensor_mem *tensor, rknn_matmul_tensor_attr 
 
 static void print_usage(char *argv[])
 {
-  printf("Usage:\n%s <matmul_type> <M> <K> <N> <B_layout> <AC_layout> <loop_count>\n", argv[0]);
+  printf("Usage:\n%s <matmul_type> <M> <K> <N> <B_layout> <AC_layout> <loop_count> <core_mask> <print_result> "
+         "<iommu_domain_id>\n",
+         argv[0]);
   printf("\tmatmul_type = 1: RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT32\n");
   printf("\tmatmul_type = 2: RKNN_INT8_MM_INT8_TO_INT32\n");
   printf("\tmatmul_type = 10: RKNN_INT4_MM_INT4_TO_INT16\n");
@@ -255,11 +451,16 @@ int main(int argc, char *argv[])
     return -1;
   }
   int loop_count = 10;
+  int print_tensor = 1;
+  int iommu_domain_id = 0;
+
   rknn_matmul_type matmul_type = (rknn_matmul_type)atoi(argv[1]);
-  if (matmul_type != RKNN_INT8_MM_INT8_TO_INT32 && matmul_type != RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT32 &&
-      matmul_type != RKNN_INT4_MM_INT4_TO_INT16)
+  if (matmul_type != RKNN_INT8_MM_INT8_TO_INT8 && matmul_type != RKNN_INT8_MM_INT8_TO_INT32 &&
+      matmul_type != RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT16 && matmul_type != RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT32 &&
+      matmul_type != RKNN_INT4_MM_INT4_TO_INT16 && matmul_type != RKNN_FLOAT16_MM_INT8_TO_FLOAT32 &&
+      matmul_type != RKNN_FLOAT16_MM_INT4_TO_FLOAT32 && matmul_type != RKNN_INT8_MM_INT4_TO_INT32)
   {
-    fprintf(stderr, "invalid matmul_type: %d, required matmul_type =1/2/10!\n", matmul_type);
+    fprintf(stderr, "invalid matmul_type: %d, required matmul_type =1/2/3/4/10!\n", matmul_type);
     print_usage(argv);
     return -1;
   }
@@ -287,8 +488,25 @@ int main(int argc, char *argv[])
     loop_count = atoi(argv[7]);
   }
 
-  printf("MatMul matmul_type = %s, M = %d, K = %d, N = %d, B_layout = %d, AC_layout = %d\n",
-         get_matmul_type_string(matmul_type), M, K, N, B_layout, AC_layout);
+  int core_mask = 0;
+  if (argc > 8)
+  {
+    core_mask = atoi(argv[8]);
+  }
+
+  if (argc > 9)
+  {
+    print_tensor = atoi(argv[9]);
+  }
+
+  if (argc > 10)
+  {
+    iommu_domain_id = atoi(argv[10]);
+  }
+
+  printf("MatMul matmul_type = %s, M = %d, K = %d, N = %d, B_layout = %d, AC_layout = %d, loop_count = %d, core_mask = "
+         "%d, iommu_domain_id = %u\n",
+         get_matmul_type_string(matmul_type), M, K, N, B_layout, AC_layout, loop_count, core_mask, iommu_domain_id);
 
   rknn_matmul_ctx ctx;
 
@@ -300,6 +518,14 @@ int main(int argc, char *argv[])
   info.type = matmul_type;
   info.B_layout = B_layout;
   info.AC_layout = AC_layout;
+  info.iommu_domain_id = iommu_domain_id;
+
+  if (matmul_type == RKNN_FLOAT16_MM_INT8_TO_FLOAT32 || matmul_type == RKNN_FLOAT16_MM_INT4_TO_FLOAT32 ||
+      matmul_type == RKNN_INT8_MM_INT4_TO_INT32)
+  {
+    // 混合量化暂时只支持per-channel
+    info.B_quant_type = 1;
+  }
 
   rknn_matmul_io_attr io_attr;
   memset(&io_attr, 0, sizeof(rknn_matmul_io_attr));
@@ -311,15 +537,160 @@ int main(int argc, char *argv[])
     return -1;
   }
 
+  ret = rknn_matmul_set_core_mask(ctx, (rknn_core_mask)core_mask);
+  if (ret < 0)
+  {
+    fprintf(stderr, "rknn_matmul_set_core_mask fail (only support rk3588/rk3576), ret=%d\n", ret);
+  }
+
+  if (matmul_type == RKNN_INT8_MM_INT8_TO_INT8)
+  {
+    rknn_quant_params params_a;
+    memcpy(params_a.name, io_attr.A.name, RKNN_MAX_NAME_LEN);
+    params_a.scale_len = 1;
+    params_a.scale = (float *)malloc(params_a.scale_len * sizeof(float));
+    params_a.scale[0] = 0.2;
+    params_a.zp_len = 1;
+    params_a.zp = (int32_t *)malloc(params_a.zp_len * sizeof(int32_t));
+    params_a.zp[0] = 0;
+    rknn_matmul_set_quant_params(ctx, &params_a);
+    free(params_a.scale);
+    free(params_a.zp);
+
+    if (info.B_quant_type == 1)
+    {
+      rknn_quant_params params_b;
+      memcpy(params_b.name, io_attr.B.name, RKNN_MAX_NAME_LEN);
+      params_b.scale_len = N;
+      params_b.scale = (float *)malloc(params_b.scale_len * sizeof(float));
+      for (int i = 0; i < params_b.scale_len; i++)
+        params_b.scale[i] = 0.1;
+      params_b.zp_len = N;
+      params_b.zp = (int32_t *)malloc(params_b.zp_len * sizeof(int32_t));
+      memset(params_b.zp, 0, sizeof(int32_t) * params_b.zp_len);
+      rknn_matmul_set_quant_params(ctx, &params_b);
+      free(params_b.scale);
+      free(params_b.zp);
+    }
+    else
+    {
+      rknn_quant_params params_b;
+      memcpy(params_b.name, io_attr.B.name, RKNN_MAX_NAME_LEN);
+      params_b.scale_len = 1;
+      params_b.scale = (float *)malloc(params_b.scale_len * sizeof(float));
+      params_b.scale[0] = 0.1;
+      params_b.zp_len = 1;
+      params_b.zp = (int32_t *)malloc(params_b.zp_len * sizeof(int32_t));
+      params_b.zp[0] = 0;
+      rknn_matmul_set_quant_params(ctx, &params_b);
+      free(params_b.scale);
+      free(params_b.zp);
+    }
+
+    rknn_quant_params params_c;
+    memcpy(params_c.name, io_attr.C.name, RKNN_MAX_NAME_LEN);
+    params_c.scale_len = 1;
+    params_c.scale = (float *)malloc(params_c.scale_len * sizeof(float));
+    params_c.scale[0] = 0.8;
+    params_c.zp_len = 1;
+    params_c.zp = (int32_t *)malloc(params_c.zp_len * sizeof(int32_t));
+    params_c.zp[0] = 0;
+    rknn_matmul_set_quant_params(ctx, &params_c);
+    free(params_c.scale);
+    free(params_c.zp);
+  }
+
+  if (matmul_type == RKNN_INT8_MM_INT4_TO_INT32)
+  {
+    rknn_quant_params params_a;
+    memcpy(params_a.name, io_attr.A.name, RKNN_MAX_NAME_LEN);
+    params_a.scale_len = 1;
+    params_a.scale = (float *)malloc(params_a.scale_len * sizeof(float));
+    params_a.scale[0] = 0.2;
+    params_a.zp_len = 1;
+    params_a.zp = (int32_t *)malloc(params_a.zp_len * sizeof(int32_t));
+    params_a.zp[0] = 0;
+    rknn_matmul_set_quant_params(ctx, &params_a);
+    free(params_a.scale);
+    free(params_a.zp);
+
+    if (info.B_quant_type == 1)
+    {
+      rknn_quant_params params_b;
+      memcpy(params_b.name, io_attr.B.name, RKNN_MAX_NAME_LEN);
+      params_b.scale_len = N;
+      params_b.scale = (float *)malloc(params_b.scale_len * sizeof(float));
+      for (int i = 0; i < params_b.scale_len; i++)
+        params_b.scale[i] = 0.1;
+      params_b.zp_len = N;
+      params_b.zp = (int32_t *)malloc(params_b.zp_len * sizeof(int32_t));
+      memset(params_b.zp, 0, sizeof(int32_t) * params_b.zp_len);
+      rknn_matmul_set_quant_params(ctx, &params_b);
+      free(params_b.scale);
+      free(params_b.zp);
+    }
+    else
+    {
+      rknn_quant_params params_b;
+      memcpy(params_b.name, io_attr.B.name, RKNN_MAX_NAME_LEN);
+      params_b.scale_len = 1;
+      params_b.scale = (float *)malloc(params_b.scale_len * sizeof(float));
+      params_b.scale[0] = 0.1;
+      params_b.zp_len = 1;
+      params_b.zp = (int32_t *)malloc(params_b.zp_len * sizeof(int32_t));
+      params_b.zp[0] = 0;
+      rknn_matmul_set_quant_params(ctx, &params_b);
+      free(params_b.scale);
+      free(params_b.zp);
+    }
+  }
+
+  if (matmul_type == RKNN_FLOAT16_MM_INT8_TO_FLOAT32 || matmul_type == RKNN_FLOAT16_MM_INT4_TO_FLOAT32)
+  {
+    if (info.B_quant_type == 1)
+    {
+      rknn_quant_params params_b;
+      memcpy(params_b.name, io_attr.B.name, RKNN_MAX_NAME_LEN);
+      params_b.scale_len = N;
+      params_b.scale = (float *)malloc(params_b.scale_len * sizeof(float));
+      for (int i = 0; i < params_b.scale_len; i++)
+        params_b.scale[i] = 0.1;
+      params_b.zp_len = N;
+      params_b.zp = (int32_t *)malloc(params_b.zp_len * sizeof(int32_t));
+      memset(params_b.zp, 0, sizeof(int32_t) * params_b.zp_len);
+      rknn_matmul_set_quant_params(ctx, &params_b);
+      free(params_b.scale);
+      free(params_b.zp);
+    }
+    else
+    {
+      rknn_quant_params params_b;
+      memcpy(params_b.name, io_attr.B.name, RKNN_MAX_NAME_LEN);
+      params_b.scale_len = 1;
+      params_b.scale = (float *)malloc(params_b.scale_len * sizeof(float));
+      params_b.scale[0] = 0.1;
+      params_b.zp_len = 1;
+      params_b.zp = (int32_t *)malloc(params_b.zp_len * sizeof(int32_t));
+      params_b.zp[0] = 0;
+      rknn_matmul_set_quant_params(ctx, &params_b);
+      free(params_b.scale);
+      free(params_b.zp);
+    }
+  }
+
   void *A_Matrix = nullptr;
   void *B_Matrix = nullptr;
+  void *B_Matrix_ = nullptr;
   void *C_Matrix = nullptr;
-  int type_bytes = 1;
+  int A_type_bytes = 1;
+  int B_type_bytes = 1;
   if (info.type == RKNN_INT4_MM_INT4_TO_INT16)
   {
-    type_bytes = 1;
+    A_type_bytes = 1;
+    B_type_bytes = 1;
     A_Matrix = malloc(M * K);
     B_Matrix = malloc(K * N);
+    B_Matrix_ = malloc(K * N);
     C_Matrix = malloc(M * N * sizeof(int16_t));
 
     // generate int4 A buffer
@@ -330,7 +701,8 @@ int main(int argc, char *argv[])
   }
   else if (info.type == RKNN_INT8_MM_INT8_TO_INT32)
   {
-    type_bytes = 1;
+    A_type_bytes = 1;
+    B_type_bytes = 1;
     A_Matrix = malloc(M * K);
     B_Matrix = malloc(K * N);
     C_Matrix = malloc(M * N * sizeof(int32_t));
@@ -341,11 +713,26 @@ int main(int argc, char *argv[])
     generate_random_buffer(A_int8_Matrix, M * K, {-128, 127});
     generate_random_buffer(B_int8_Matrix, K * N, {-128, 127});
   }
-  else if (info.type == RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT32)
+  else if (info.type == RKNN_INT8_MM_INT8_TO_INT8)
   {
-    type_bytes = 2;
-    A_Matrix = malloc(M * K * type_bytes);
-    B_Matrix = malloc(K * N * type_bytes);
+    A_type_bytes = 1;
+    B_type_bytes = 1;
+    A_Matrix = malloc(M * K);
+    B_Matrix = malloc(K * N);
+    C_Matrix = malloc(M * N * sizeof(int8_t));
+
+    // generate int8 A buffer
+    int8_t *A_int8_Matrix = (int8_t *)A_Matrix;
+    int8_t *B_int8_Matrix = (int8_t *)B_Matrix;
+    generate_random_buffer(A_int8_Matrix, M * K, {5, 6});
+    generate_random_buffer(B_int8_Matrix, K * N, {10, 11});
+  }
+  else if (info.type == RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT16 || info.type == RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT32)
+  {
+    A_type_bytes = 2;
+    B_type_bytes = 2;
+    A_Matrix = malloc(M * K * A_type_bytes);
+    B_Matrix = malloc(K * N * B_type_bytes);
     C_Matrix = malloc(M * N * sizeof(float));
 
     // generate int16 A buffer
@@ -353,6 +740,34 @@ int main(int argc, char *argv[])
     float16 *B_float16_Matrix = (float16 *)B_Matrix;
     generate_random_buffer(A_float16_Matrix, M * K, {-1.f, 1.f});
     generate_random_buffer(B_float16_Matrix, K * N, {-1.f, 1.f});
+  }
+  else if (info.type == RKNN_FLOAT16_MM_INT8_TO_FLOAT32 || info.type == RKNN_FLOAT16_MM_INT4_TO_FLOAT32)
+  {
+    A_type_bytes = 2;
+    B_type_bytes = 1;
+    A_Matrix = malloc(M * K * A_type_bytes);
+    B_Matrix = malloc(K * N);
+    B_Matrix_ = malloc(K * N);
+    C_Matrix = malloc(M * N * sizeof(float));
+
+    float16 *A_float16_Matrix = (float16 *)A_Matrix;
+    int8_t *B_int8_Matrix = (int8_t *)B_Matrix;
+    generate_random_buffer(A_float16_Matrix, M * K, {-1.f, 1.f});
+    generate_random_buffer(B_int8_Matrix, K * N, {-8, 7});
+  }
+  else if (info.type == RKNN_INT8_MM_INT4_TO_INT32)
+  {
+    A_type_bytes = 1;
+    B_type_bytes = 1;
+    A_Matrix = malloc(M * K * A_type_bytes);
+    B_Matrix = malloc(K * N);
+    B_Matrix_ = malloc(K * N);
+    C_Matrix = malloc(M * N * sizeof(int32_t));
+
+    int8_t *A_int8_Matrix = (int8_t *)A_Matrix;
+    int8_t *B_int8_Matrix = (int8_t *)B_Matrix;
+    generate_random_buffer(A_int8_Matrix, M * K, {-128, 127});
+    generate_random_buffer(B_int8_Matrix, K * N, {-8, 7});
   }
   else
   {
@@ -387,30 +802,12 @@ int main(int argc, char *argv[])
   {
     if (info.type == RKNN_INT4_MM_INT4_TO_INT16)
     {
-      int8_t *A_int8_Matrix = (int8_t *)A_Matrix;
-      for (uint32_t i = 0; i < io_attr.A.dims[1]; ++i)
-      {
-        for (uint32_t j = 0; j < io_attr.A.dims[0]; ++j)
-        {
-          // 外面传进来的是int8模拟的int4数据
-          int8_t int4 = A_int8_Matrix[aii++] & 0xf;
-          int number = i * io_attr.A.dims[0] + j;
-          if (number % 2 == 0)
-          {
-            ((int8_t *)A->virt_addr)[number / 2] = int4 << 4;
-          }
-          else
-          {
-            int8_t temp = ((int8_t *)A->virt_addr)[number / 2];
-            int8_t result = temp | int4;
-            ((int8_t *)A->virt_addr)[number / 2] = result;
-          }
-        }
-      }
+      int size = io_attr.A.dims[1] * io_attr.A.dims[0];
+      set_mem_from_int8_to_int4((int8_t *)A->virt_addr, (int8_t *)A_Matrix, size);
     }
     else
     {
-      memcpy(A->virt_addr, A_Matrix, M * K * type_bytes);
+      memcpy(A->virt_addr, A_Matrix, M * K * A_type_bytes);
     }
   }
   else
@@ -422,7 +819,7 @@ int main(int argc, char *argv[])
       norm_layout_to_perf_layout<int8_t, int8_t>(static_cast<int8_t *>(A_Matrix), static_cast<int8_t *>(A->virt_addr), M,
                                                  K, subK, true);
     }
-    else if (info.type == RKNN_INT8_MM_INT8_TO_INT32)
+    else if ((info.type == RKNN_INT8_MM_INT8_TO_INT32) || (info.type == RKNN_INT8_MM_INT8_TO_INT8))
     {
       norm_layout_to_perf_layout<int8_t, int8_t>(static_cast<int8_t *>(A_Matrix), static_cast<int8_t *>(A->virt_addr), M,
                                                  K, subK, false);
@@ -439,32 +836,15 @@ int main(int argc, char *argv[])
   uint32_t bii = 0;
   if (info.B_layout == 0)
   {
-    if (info.type == RKNN_INT4_MM_INT4_TO_INT16)
+    if (info.type == RKNN_FLOAT16_MM_INT4_TO_FLOAT32 || info.type == RKNN_INT8_MM_INT4_TO_INT32 ||
+        info.type == RKNN_INT4_MM_INT4_TO_INT16)
     {
-      int8_t *B_int8_Matrix = (int8_t *)B_Matrix;
-      for (uint32_t i = 0; i < io_attr.B.dims[1]; ++i)
-      {
-        for (uint32_t j = 0; j < io_attr.B.dims[0]; ++j)
-        {
-          // 外面传进来的是int8模拟的int4数据
-          int8_t int4 = B_int8_Matrix[bii++] & 0xf;
-          int number = i * io_attr.B.dims[0] + j;
-          if (number % 2 == 0)
-          {
-            ((int8_t *)B->virt_addr)[number / 2] = int4 << 4;
-          }
-          else
-          {
-            int8_t temp = ((int8_t *)B->virt_addr)[number / 2];
-            int8_t result = temp | int4;
-            ((int8_t *)B->virt_addr)[number / 2] = result;
-          }
-        }
-      }
+      int size = io_attr.B.dims[1] * io_attr.B.dims[0];
+      set_mem_from_int8_to_int4((int8_t *)B->virt_addr, (int8_t *)B_Matrix, size);
     }
     else
     {
-      memcpy(B->virt_addr, B_Matrix, K * N * type_bytes);
+      memcpy(B->virt_addr, B_Matrix, K * N * B_type_bytes);
     }
   }
   else
@@ -472,20 +852,19 @@ int main(int argc, char *argv[])
     // native layout: [N1, K1, subN, subK]
     int32_t subN = io_attr.B.dims[2];
     int32_t subK = io_attr.B.dims[3];
-    if (info.type == RKNN_INT4_MM_INT4_TO_INT16)
+    std::vector<int> input_shape = {(int)(K / subK), subK, int(N / subN), subN};
+    std::vector<int> output_shape = {int(N / subN), (int)(K / subK), subN, subK};
+    if (info.type == RKNN_FLOAT16_MM_INT4_TO_FLOAT32 || info.type == RKNN_INT8_MM_INT4_TO_INT32 ||
+        info.type == RKNN_INT4_MM_INT4_TO_INT16)
     {
-      norm_layout_to_native_layout<int8_t, int8_t>(static_cast<int8_t *>(B_Matrix), static_cast<int8_t *>(B->virt_addr),
-                                                   K, N, subN, subK, true);
-    }
-    else if (info.type == RKNN_INT8_MM_INT8_TO_INT32)
-    {
-      norm_layout_to_native_layout<int8_t, int8_t>(static_cast<int8_t *>(B_Matrix), static_cast<int8_t *>(B->virt_addr),
-                                                   K, N, subN, subK, false);
+      int size = io_attr.B.dims[1] * io_attr.B.dims[0];
+      memcpy(B_Matrix_, B_Matrix, K * N * B_type_bytes);
+      set_mem_from_int8_to_int4((int8_t *)B_Matrix_, (int8_t *)B_Matrix, K * N);
+      rknn_B_normal_layout_to_native_layout(B_Matrix_, B->virt_addr, K, N, subN, subK, info.type);
     }
     else
     {
-      norm_layout_to_native_layout<float16, float16>(static_cast<float16 *>(B_Matrix),
-                                                     static_cast<float16 *>(B->virt_addr), K, N, subN, subK, false);
+      rknn_B_normal_layout_to_native_layout(B_Matrix, B->virt_addr, K, N, subN, subK, info.type);
     }
   }
 
@@ -523,11 +902,13 @@ int main(int argc, char *argv[])
 
   // Run
   printf("Begin perf ...\n");
+  int64_t total_us = 0;
   for (int i = 0; i < loop_count; ++i)
   {
     int64_t start_us = getCurrentTimeUs();
     ret = rknn_matmul_run(ctx);
     int64_t elapse_us = getCurrentTimeUs() - start_us;
+    total_us += elapse_us;
     if (ret < 0)
     {
       printf("rknn_matmul_run error %d\n", ret);
@@ -535,12 +916,21 @@ int main(int argc, char *argv[])
     }
     printf("%4d: Elapse Time = %.2fms, FPS = %.2f\n", i, elapse_us / 1000.f, 1000.f * 1000.f / elapse_us);
   }
+  int64_t average_us = total_us / loop_count;
+  printf("Average Time = %.2fms, Average FPS = %.2f\n", average_us / 1000.f, 1000.f * 1000.f / average_us);
 
   // Dump A/B/C tensors
-  printf("matmul tensors:\n");
-  dump_matmul_tensor(A, &io_attr.A);
-  dump_matmul_tensor(B, &io_attr.B);
-  dump_matmul_tensor(C, &io_attr.C);
+  if (print_tensor != 0)
+  {
+    printf("matmul tensors:\n");
+    dump_matmul_tensor(A, &io_attr.A);
+    dump_matmul_tensor(B, &io_attr.B);
+#if DUMP_REVERSE_WEIGHT
+    // 把weight的两个轴反着dump 这样方便和input 一一对应相乘
+    dump_matmul_tensor_reverse(B, &io_attr.B);
+#endif
+    dump_matmul_tensor(C, &io_attr.C);
+  }
 
   // compare NPU res vs CPU res
 
@@ -562,12 +952,14 @@ int main(int argc, char *argv[])
 
     if (arraysEqual<int16_t>(cpu_res, npu_res))
     {
-      printf("int4 matmul result is correct\n");
+      printf("INT4_MM_INT4_TO_INT16 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
       ret = 0;
     }
     else
     {
-      printf("int4 matmul result is wrong\n");
+      printf("INT4_MM_INT4_TO_INT16 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
       ret = -1;
     }
   }
@@ -587,14 +979,29 @@ int main(int argc, char *argv[])
     cpu_res.reserve(M * N);
     cpu_res = matrixMultiply<int8_t, int32_t>((const int8_t *)A_Matrix, (const int8_t *)B_Matrix, M, K, N);
 
+#if DEBUG_PRINT
+    // print cpu_res
+    printf("cpu_res:\n");
+    for (uint32_t i = 0; i < M; ++i)
+    {
+      for (uint32_t j = 0; j < N; ++j)
+      {
+        printf(" %6d", cpu_res[i * N + j]);
+      }
+      printf("\n");
+    }
+#endif
+
     if (arraysEqual<int32_t>(cpu_res, npu_res))
     {
-      printf("int8 matmul result is correct\n");
+      printf("INT8_MM_INT8_TO_INT32 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
       ret = 0;
     }
     else
     {
-      printf("int8 matmul result is wrong\n");
+      printf("INT8_MM_INT8_TO_INT32 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
       ret = -1;
     }
   }
@@ -617,12 +1024,182 @@ int main(int argc, char *argv[])
 
     if (arraysCosineSimilarity<float>(cpu_res, npu_res))
     {
-      printf("fp16 matmul result is correct\n");
+      printf(
+          "FLOAT16_MM_FLOAT16_TO_FLOAT32 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n",
+          M, K, N, AC_layout, B_layout);
       ret = 0;
     }
     else
     {
-      printf("fp16 matmul result is wrong\n");
+      printf(
+          "FLOAT16_MM_FLOAT16_TO_FLOAT32 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n",
+          M, K, N, AC_layout, B_layout);
+      ret = -1;
+    }
+  }
+  else if (info.type == RKNN_FLOAT16_MM_FLOAT16_TO_FLOAT16)
+  {
+    float16 *npu_res_ptr = (float16 *)C->virt_addr;
+    if (info.AC_layout == 1)
+    {
+      int32_t N_remain = io_attr.C.dims[0];
+      int32_t subN = io_attr.C.dims[2];
+      perf_layout_to_norm_layout(npu_res_ptr, (float16 *)C_Matrix, M, N, N_remain, subN);
+      npu_res_ptr = (float16 *)C_Matrix;
+    }
+    std::vector<float> npu_res(npu_res_ptr, npu_res_ptr + M * N);
+
+    // calculate cpu res
+    std::vector<float> cpu_res;
+    cpu_res.reserve(M * N);
+    cpu_res = matrixMultiply<float16, float>((const float16 *)A_Matrix, (const float16 *)B_Matrix, M, K, N);
+
+    if (arraysCosineSimilarity<float>(cpu_res, npu_res))
+    {
+      printf(
+          "FLOAT16_MM_FLOAT16_TO_FLOAT16 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n",
+          M, K, N, AC_layout, B_layout);
+      ret = 0;
+    }
+    else
+    {
+      printf(
+          "FLOAT16_MM_FLOAT16_TO_FLOAT16 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n",
+          M, K, N, AC_layout, B_layout);
+      ret = -1;
+    }
+  }
+  else if (info.type == RKNN_INT8_MM_INT8_TO_INT8)
+  {
+    int8_t *npu_res_ptr = (int8_t *)C->virt_addr;
+    if (info.AC_layout == 1)
+    {
+      int32_t N_remain = io_attr.C.dims[0];
+      int32_t subN = io_attr.C.dims[2];
+      perf_layout_to_norm_layout(npu_res_ptr, (int8_t *)C_Matrix, M, N, N_remain, subN);
+      npu_res_ptr = (int8_t *)C_Matrix;
+    }
+    std::vector<int8_t> npu_res(npu_res_ptr, npu_res_ptr + M * N);
+
+    float input_scale = 0.2;
+    float weight_scale = 0.1;
+    float output_scale = 0.8;
+    std::vector<int8_t> cpu_res;
+    cpu_res.reserve(M * N);
+    cpu_res = matrixMultiplyWithQuant((const int8_t *)A_Matrix, (const int8_t *)B_Matrix, M, K, N, input_scale,
+                                      weight_scale, output_scale);
+
+    if (arraysEqual<int8_t>(cpu_res, npu_res))
+    {
+      printf("INT8_MM_INT8_TO_INT8 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
+      ret = 0;
+    }
+    else
+    {
+      printf("INT8_MM_INT8_TO_INT8 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M, K,
+             N, AC_layout, B_layout);
+      ret = -1;
+    }
+  }
+  else if (matmul_type == RKNN_FLOAT16_MM_INT8_TO_FLOAT32)
+  {
+    float *npu_res_ptr = (float *)C->virt_addr;
+    if (info.AC_layout == 1)
+    {
+      int32_t N_remain = io_attr.C.dims[0];
+      int32_t subN = io_attr.C.dims[2];
+      perf_layout_to_norm_layout(npu_res_ptr, (float *)C_Matrix, M, N, N_remain, subN);
+      npu_res_ptr = (float *)C_Matrix;
+    }
+    std::vector<float> npu_res(npu_res_ptr, npu_res_ptr + M * N);
+
+    float input_scale = 1;
+    float weight_scale = 0.1;
+    float output_scale = 1;
+    std::vector<float> cpu_res;
+    cpu_res.reserve(M * N);
+    cpu_res = matrixMultiplyWithHybridQuant<float16, int8_t, float>((const float16 *)A_Matrix, (const int8_t *)B_Matrix,
+                                                                    M, K, N, input_scale, weight_scale, output_scale);
+
+    if (arraysCosineSimilarity<float>(cpu_res, npu_res))
+    {
+      printf(
+          "FLOAT16_MM_INT8_TO_FLOAT32 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+          K, N, AC_layout, B_layout);
+      ret = 0;
+    }
+    else
+    {
+      printf("FLOAT16_MM_INT8_TO_FLOAT32 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n",
+             M, K, N, AC_layout, B_layout);
+      ret = -1;
+    }
+  }
+  else if (matmul_type == RKNN_FLOAT16_MM_INT4_TO_FLOAT32)
+  {
+    float *npu_res_ptr = (float *)C->virt_addr;
+    if (info.AC_layout == 1)
+    {
+      int32_t N_remain = io_attr.C.dims[0];
+      int32_t subN = io_attr.C.dims[2];
+      perf_layout_to_norm_layout(npu_res_ptr, (float *)C_Matrix, M, N, N_remain, subN);
+      npu_res_ptr = (float *)C_Matrix;
+    }
+    std::vector<float> npu_res(npu_res_ptr, npu_res_ptr + M * N);
+
+    float input_scale = 1;
+    float weight_scale = 0.1;
+    float output_scale = 1;
+    std::vector<float> cpu_res;
+    cpu_res.reserve(M * N);
+    cpu_res = matrixMultiplyWithHybridQuant<float16, int8_t, float>((const float16 *)A_Matrix, (const int8_t *)B_Matrix,
+                                                                    M, K, N, input_scale, weight_scale, output_scale);
+
+    if (arraysCosineSimilarity<float>(cpu_res, npu_res))
+    {
+      printf(
+          "FLOAT16_MM_INT4_TO_FLOAT32 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+          K, N, AC_layout, B_layout);
+      ret = 0;
+    }
+    else
+    {
+      printf("FLOAT16_MM_INT4_TO_FLOAT32 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n",
+             M, K, N, AC_layout, B_layout);
+      ret = -1;
+    }
+  }
+  else if (matmul_type == RKNN_INT8_MM_INT4_TO_INT32)
+  {
+    int32_t *npu_res_ptr = (int32_t *)C->virt_addr;
+    if (info.AC_layout == 1)
+    {
+      int32_t N_remain = io_attr.C.dims[0];
+      int32_t subN = io_attr.C.dims[2];
+      perf_layout_to_norm_layout(npu_res_ptr, (int32_t *)C_Matrix, M, N, N_remain, subN);
+      npu_res_ptr = (int32_t *)C_Matrix;
+    }
+    std::vector<int32_t> npu_res(npu_res_ptr, npu_res_ptr + M * N);
+
+    float input_scale = 0.2;
+    float weight_scale = 0.1;
+    float output_scale = 1;
+    std::vector<int32_t> cpu_res;
+    cpu_res.reserve(M * N);
+    cpu_res = matrixMultiplyWithHybridQuant<int8_t, int8_t, int32_t>((const int8_t *)A_Matrix, (const int8_t *)B_Matrix,
+                                                                     M, K, N, input_scale, weight_scale, output_scale);
+
+    if (arraysCosineSimilarity<int32_t>(cpu_res, npu_res))
+    {
+      printf("INT8_MM_INT4_TO_INT32 matmul result is correct M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
+      ret = 0;
+    }
+    else
+    {
+      printf("INT8_MM_INT4_TO_INT32 matmul result is wrong M x K x N is %d %d %d AC_layout is %d B_layout is %d\n", M,
+             K, N, AC_layout, B_layout);
       ret = -1;
     }
   }

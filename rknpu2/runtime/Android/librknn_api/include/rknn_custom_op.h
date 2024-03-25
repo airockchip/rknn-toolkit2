@@ -21,6 +21,11 @@ extern "C" {
 
 #include <stdint.h>
 
+/*
+    Error code returned by the RKNN Custom Operator API.
+*/
+#define RKNN_WARNING_SKIP_CUSTOM_OP_COMPUTE -14 /* if custom op init callback funtion return this code and op type is supported by RKNN, it will use RKNN implementation. */
+
 #define RKNN_CUSTOM_OP_MAX_STR_LEN 64
 #define RKNN_CUSTOM_OP_MAX_VALUE_LEN 32
 #define RKNN_CUSTOM_OP_EXPORT __attribute__((visibility("default")))

@@ -167,7 +167,7 @@ if __name__ == '__main__':
         print('!!! Missing VGG_VOC0712_SSD_300x300_iter_120000.caffemodel !!!\n'
               '1. Download models_VGGNet_VOC0712_SSD_300x300.tar.gz from https://drive.google.com/file/d/0BzKzrI_SkD1_WVVTSmQxU0dVRzA/view\n'
               '2. Extract the VGG_VOC0712_SSD_300x300_iter_120000.caffemodel from models_VGGNet_VOC0712_SSD_300x300.tar.gz\n'
-              '3. Or you can also download caffemodel from https://eyun.baidu.com/s/3jJhPRzo , password is rknn\n')
+              '3. Or you can also download caffemodel from https://ftzr.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/asset/vgg-ssd/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel\n')
         exit(-1)
 
     # Create RKNN object

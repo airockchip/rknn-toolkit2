@@ -7,20 +7,21 @@ https://github.com/airockchip/YOLOX
 
 Download link:
 
-[yolox_s.onnx](https://ftrg.zbox.filez.com/v2/delivery/data/ec1c6f44f8c24155875ac5bce7aa6b3c/examples/yolox/yolox_s.onnx)
+[yolox_s.onnx](https://ftrg.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/examples/yolox/yolox_s.onnx)
 
-The converted RKNN models of platforms RK3562, RK356X and RK3588 are located in model folder.
+The converted RKNN models of platforms RK3562, RK356X, RK3576 and RK3588 are located in model folder.
 
 # Aarch64 Linux Demo
 
 ## Build
 
-modify `GCC_COMPILER` on `build-linux_<TARGET_PLATFORM>.sh` for target platform,
-
-then execute
+First export `GCC_COMPILER`, for example `export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu`, then execute:
 
 ```
-./build-linux_<TARGET_PLATFORM>.sh
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
+
+# such as: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ## *Install*
@@ -53,10 +54,13 @@ export LD_LIBRARY_PATH=./lib
 
 ## Build
 
-modify `ANDROID_NDK_PATH` on `build-android_<TARGET_PLATFORM>.sh` for target platform, then execute
+First export `ANDROID_NDK_PATH`, for example `export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`, then execute:
 
 ```
-./build-android_<TARGET_PLATFORM>.sh
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
+
+# sush as: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ## Install

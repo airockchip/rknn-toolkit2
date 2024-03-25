@@ -18,8 +18,10 @@
 # Support Platform
   - RK3566/RK3568 Series
   - RK3588 Series
+  - RK3576 Series
   - RK3562 Series
   - RV1103/RV1106
+  - RK2118
 
 
 Note:
@@ -43,23 +45,30 @@ Note:
   - Ubuntu 18.04 python 3.6/3.7
   - Ubuntu 20.04 python 3.8/3.9
   - Ubuntu 22.04 python 3.10/3.11
-- Latest version:1.6.0(Release version)
+- Latest version:v2.0.0-beta0
+
+
+
+# RKNN LLM
+
+If you want to deploy LLM (Large Language Model), we have introduced a new SDK called RKNN-LLM. For details, please refer to:
+
+https://github.com/airockchip/rknn-llm
+
+
 
 # CHANGELOG
 
-## 1.6.0
- - Support ONNX model of OPSET 12~19
- - Support custom operators (including CPU and GPU)
- - Optimization operators support such as dynamic weighted convolution, Layernorm, RoiAlign, Softmax, ReduceL2, Gelu, GLU, etc.
- - Added support for python3.7/3.9/3.11
- - Add rknn_convert function
- - Optimize transformer support
- - Optimize the MatMul API, such as increasing the K limit length, RK3588 adding int4 * int4 -> int16 support, etc.
- - Optimize RV1106 rknn_init initialization time, memory consumption, etc.
- - RV1106 adds int16 support for some operators
- - Fixed the problem that the convolution operator of RV1106 platform may make random errors in some cases.
- - Optimize user manual
- - Reconstruct the rknn model zoo and add support for multiple models such as detection, segmentation, OCR, and license plate recognition.
+## v2.0.0-beta0
+ - Support RK3576 (Beta)
+ - Support RK2118 (Beta)
+ - Support SDPA (Scaled Dot Product Attention) to improve transformer performance
+ - Improve custom operators support
+ - Improve MatMul API
+ - Improve support for Reshape,Transpose,BatchLayernorm,Softmax,Deconv,Matmul,ScatterND etc.
+ - Support pytorch 2.1
+ - Improve support for QAT models of pytorch and onnx
+ - Optimize automatic generation of C++ code
 
  for older version, please refer [CHANGELOG](CHANGELOG.md)
 

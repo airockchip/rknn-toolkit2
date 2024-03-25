@@ -70,6 +70,7 @@ if __name__ == '__main__':
     # If inception_v3_quant_frozen.pb does not exist, download it.
     # Download address:
     # https://storage.googleapis.com/download.tensorflow.org/models/tflite_11_05_08/inception_v3_quant.tgz
+    # https://ftzr.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/asset/inception_v3_qat/inception_v3_quant_frozen.pb
     if not os.path.exists(PB_FILE):
         print('--> Download {}'.format(PB_FILE))
         url = 'https://storage.googleapis.com/download.tensorflow.org/models/tflite_11_05_08/inception_v3_quant.tgz'

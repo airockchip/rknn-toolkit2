@@ -136,6 +136,15 @@ typedef enum _Rga_SURF_FORMAT {
     RK_FORMAT_ABGR_4444    = 0x2f << 8, /* [0:16] A:B:G:R 4:4:4:4 little endian */
 
     RK_FORMAT_RGBA2BPP     = 0x30 << 8, /* [0:1] Color:Alpha 1:1 little endian */
+    RK_FORMAT_A8           = 0x31 << 8, /* [0:7] Alpha */
+
+    RK_FORMAT_YCbCr_444_SP = 0x32 << 8, /*  2 plane YCbCr little endian
+                                         * plane 0: [0:7] Y
+                                         * plane 1: non-subsampled [0:15] Cb:Cr 8:8  */
+	RK_FORMAT_YCrCb_444_SP = 0x33 << 8, /*  2 plane YCrCb little endian
+                                         * plane 0: [0:7] Y
+                                         * plane 1: non-subsampled [0:15] Cr:Cb 8:8  */
+    RK_FORMAT_Y8           = 0x34 << 8, /* [0:7] zero:Y 4:4 little endian */
 
     RK_FORMAT_UNKNOWN      = 0x100 << 8,
 } RgaSURF_FORMAT;
@@ -168,6 +177,9 @@ enum {
     RGA3_SCHEDULER_CORE0    = 1 << 0,
     RGA3_SCHEDULER_CORE1    = 1 << 1,
     RGA2_SCHEDULER_CORE0    = 1 << 2,
+    RGA2_SCHEDULER_CORE1    = 1 << 3,
+    RGA_CORE_MASK			= 0xf,
+    RGA_NONE_CORE			= 0x0,
 };
 
 /* RGA3 rd_mode */

@@ -4,7 +4,7 @@ This is a demo that uses the RKNN C API for dynamic shape input inference. In th
 
 ## How to Use
 
-1. Clone or download this code repository: ssh://git@10.10.10.59:8001/hpc/rknpu2.git.
+1. Clone or download this code repository: https://github.com/rockchip-linux/rknn-toolkit2/tree/master/rknpu2.
 2. Navigate to the dynamic shape inference demo directory in your terminal.
 
 ```shell
@@ -42,18 +42,24 @@ export LD_LIBRARY_PATH=./lib
 
 ### Arm Linux
 
-Specify the cross-compiler path for the specific chip platform by modifying the `GCC_COMPILER` in `build-linux_<TARGET_PLATFORM>.sh`, where TARGET_PLATFORM is the chip name. Then execute:
+First export `GCC_COMPILER`, for example `export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu`, then execute:
 
 ```
-./build-linux_<TARGET_PLATFORM>.sh
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
+
+# such as: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ### Android
 
-Specify the path to the Android NDK by modifying `ANDROID_NDK_PATH` in `build-android_<TARGET_PLATFORM>.sh`, where TARGET_PLATFORM is the chip name. Then execute:
+First export `ANDROID_NDK_PATH`, for example `export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`, then execute:
 
 ```
-./build-android_<TARGET_PLATFORM>.sh
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
+
+# sush as: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ## Included Features

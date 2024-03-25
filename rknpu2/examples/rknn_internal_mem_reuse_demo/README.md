@@ -38,16 +38,13 @@ Note: This demo uses the RKNN models from the rknn_mobilenet_demo and rknn_yolov
 
 ### Compilation
 
-Modify the `build-android_<TARGET_PLATFORM>.sh` script based on the target platform, and set the Android NDK path in `ANDROID_NDK_PATH`. For example, if the target platform is RK3566_RK3568, RK3562 or RK3588, modify it as follows:
+First export `ANDROID_NDK_PATH`, for example `export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`, then execute:
 
 ```
-ANDROID_NDK_PATH=~/opt/tool_chain/android-ndk-r17
-```
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
 
-Then execute:
-
-```
-./build-android_<TARGET_PLATFORM>.sh
+# sush as: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ### Pushing the Executable to the Device
@@ -72,16 +69,13 @@ export LD_LIBRARY_PATH=./lib
 
 ### Compilation
 
-Modify the `build-linux_<TARGET_PLATFORM>.sh` script based on the target platform and set the path of the cross-compiler directory in `GCC_COMPILER`. For example:
+First export `GCC_COMPILER`, for example `export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu`, then execute:
 
 ```
-export GCC_COMPILER=prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu/bin/aarch64-linux
-```
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
 
-Then execute:
-
-```
-./build-linux_<TARGET_PLATFORM>.sh
+# such as: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ### Pushing the Executable to the Device

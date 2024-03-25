@@ -22,25 +22,25 @@
 
 #include "im2d_type.h"
 
-// #if ANDROID
+#if ANDROID
 
-// #include <ui/GraphicBuffer.h>
+#include <ui/GraphicBuffer.h>
 
-// using namespace android;
+using namespace android;
 
-// IM_API rga_buffer_handle_t importbuffer_GraphicBuffer_handle(buffer_handle_t hnd);
-// IM_API rga_buffer_handle_t importbuffer_GraphicBuffer(sp<GraphicBuffer> buf);
+IM_API rga_buffer_handle_t importbuffer_GraphicBuffer_handle(buffer_handle_t hnd);
+IM_API rga_buffer_handle_t importbuffer_GraphicBuffer(sp<GraphicBuffer> buf);
 
-// IM_API rga_buffer_t wrapbuffer_handle(buffer_handle_t hnd);
-// IM_API rga_buffer_t wrapbuffer_GraphicBuffer(sp<GraphicBuffer> buf);
+IM_API rga_buffer_t wrapbuffer_handle(buffer_handle_t hnd);
+IM_API rga_buffer_t wrapbuffer_GraphicBuffer(sp<GraphicBuffer> buf);
 
-// #if USE_AHARDWAREBUFFER
-// #include <android/hardware_buffer.h>
-// IM_API rga_buffer_handle_t importbuffer_AHardwareBuffer(AHardwareBuffer *buf);
-// IM_API rga_buffer_t wrapbuffer_AHardwareBuffer(AHardwareBuffer *buf);
+#if USE_AHARDWAREBUFFER
+#include <android/hardware_buffer.h>
+IM_API rga_buffer_handle_t importbuffer_AHardwareBuffer(AHardwareBuffer *buf);
+IM_API rga_buffer_t wrapbuffer_AHardwareBuffer(AHardwareBuffer *buf);
 
-// #endif /* #if USE_AHARDWAREBUFFER */
-// #endif /* #if ANDROID */
+#endif /* #if USE_AHARDWAREBUFFER */
+#endif /* #if ANDROID */
 
 #endif /* #ifdef __cplusplus */
 

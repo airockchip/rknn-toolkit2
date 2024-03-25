@@ -1,7 +1,9 @@
 #ifndef _RKNN_MATMUL_API_DEMO_UTILS_H_
 #define _RKNN_MATMUL_API_DEMO_UTILS_H_
-#include <vector>
+#include <stdint.h>
 #include <stdio.h>
+
+#include <vector>
 
 namespace rknpu2
 {
@@ -24,5 +26,5 @@ namespace rknpu2
     template <typename T>
     bool arraysCosineSimilarity(const std::vector<T> &arr1, const std::vector<T> &arr2, float eps = 0.9999f);
 
-}
+} // namespace rknpu2
 #endif

@@ -1,3 +1,107 @@
+2024-3-22
+版本: v2.0.0b0:
+更新内容:
+1. 修复部分图优化问题
+2. 更新Matmul支持
+3. 更新稀疏推理功能
+4. 更新codegen功能
+5. 更新onnx_edit功能
+
+2024-2-26
+版本: v1.6.2b0:
+更新内容:
+1. 增加onnx_edit接口
+2. 更新gen_cpp_demo功能
+3. 更新torch 2.1.0的支持
+4. 更新elu/cat支持
+5. 更新量化onnx模型的支持
+6. 更新自定义op用例和文档
+7. 修复部分dilations问题
+
+2024-2-19
+版本: v1.6.1b13:
+更新内容:
+1. [RK3576] 增加target支持
+2. 修复rknn_convert问题
+3. 更新sigmoid支持
+4. 优化transpose/reshape性能
+5. 优化工具包大小
+6. 修复量化参数错误问题
+7. 添加cat的量化支持
+8. 修复reshape优化问题
+9. 更新自定义op的用法
+
+2024-1-28
+版本: v1.6.1b11:
+更新内容:
+1. [RK3588] 增加更多规格Reshape算子NPU支持
+2. 添加rk3576部分支持
+
+2024-1-23
+版本: v1.6.1b9:
+更新内容:
+1. [RK3588] 修复BEVformer模型融合错误问题
+2. 修复bias量化参数问题
+3. 更新MatMul转换支持
+4. 修复图优化可能存在的死循环问题
+5. 更新MeanVariance支持
+
+2024-1-19
+版本: v1.6.1b8:
+更新内容:
+1. [RK3588] 修复Pad算子错误问题
+2. 更新pt的linear/deconv/bn/mul量化op支持
+3. 优化conv+reshape/deconv/性能
+4. 更新量化转换节点的支持
+5. 添加tranpose消除优化
+
+2024-1-15
+版本: v1.6.1b7:
+更新内容:
+1. [RK3588] 增加exMeanVarianceNorm算子支持
+
+2024-1-12
+版本: v1.6.1b6:
+更新内容:
+1. [RK3588] 优化rknn模型内部的layout转换性能
+2. 修复部分adb问题
+3. 修复pt模型的量化dtype问题
+4. 修复opset转换问题
+5. 修复pt模型的部分op支持
+6. 更新自定义op的支持
+7. 更新ScatterND/DeConv/Gather的支持
+8. 添加Concat/Scatternd相关优化
+9. 修复auto_pads与pads相关逻辑
+
+2023-12-26
+版本: v1.6.1b3:
+更新内容:
+1. [RK3566/RK3562] 增加动态权重卷积支持
+2. [Matmul] 修改Matmul API的rknn_matmul_info结构体定义,rknn_matmul_api.h兼容1.5.2版本的头文件
+3. [OP] 修复Not算子出错的Bug
+4. 修复图优化部分bug
+
+2023-12-22
+版本: v1.6.1b1:
+更新内容:
+1. [RK3566] 修复float16 Conv+Activation层融合的错误
+2. [Matmul] 增加Matmul API添加量化参数的功能,rknn_matmul_api.h头文件更新
+3. 更新layernorm支持
+4. 修复图优化部分bug
+5. 添加部分图优化规则
+6. 添加QAT模型的channel支持
+7. 添加float64模型支持
+
+2023-12-19
+版本: v1.6.1b0:
+更新内容:
+1. 修改hybrid_quantization_step1接口生成推荐层逻辑.proposal=False不生成推荐层
+2. 增加部分OP的2纬~6维的图优化支持
+3. 修复图优化部分bug
+4. 添加部分图优化规则
+5. 更新日志提示
+6. 修复部分pb模型问题
+
 2023-11-30
 版本: v1.6.0:
 更新内容:
@@ -9,17 +113,17 @@
 2023-12-11
 版本: v1.5.3b21:
 更新内容:
-1. 修复非对齐channel的Expand算子结果错误问题.
-2. [RK3588]修复start=-1, end=-w-1, step=-1的slice算子结果错误问题.
+1. 修复非对齐channel的Expand算子结果错误问题
+2. [RK3588]修复start=-1, end=-w-1, step=-1的slice算子结果错误问题
 3. [RV1106]:
-    1) 增加Transpose perm=[1,0,2,3]优化.
-    2) 修复RKNN_QUERY_OUTPUT_ATTR查询fmt错误问题.
-4. Matmul API头文件数据结构优化,新app需更新头文件并编译程序.
+    1) 增加Transpose perm=[1,0,2,3]优化
+    2) 修复RKNN_QUERY_OUTPUT_ATTR查询fmt错误问题
+4. Matmul API头文件数据结构优化,新app需更新头文件并编译程序
 
 2023-11-24
 版本: v1.5.3b17:
 更新内容:
-1. 修复动态权重卷积的bug.
+1. 修复动态权重卷积的bug
 2. 添加部分结构图优化，如Transformer FFN
 3. 修复部分图优化报错问题
 4. 更新eval_perf&eval_memory功能

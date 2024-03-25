@@ -39,16 +39,13 @@ rknn_set_internal_mem(ctx_b, internal_mem_b);
 
 ### 编译
 
-根据指定平台修改 `build-android_<TARGET_PLATFORM>.sh`中的Android NDK的路径 `ANDROID_NDK_PATH`，<TARGET_PLATFORM>可以是RK3566_RK3568、RK3562或RK3588 例如修改成：
+首先导入ANDROID_NDK_PATH，例如`export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`，然后执行如下命令：
 
-```sh
-ANDROID_NDK_PATH=~/opt/tool_chain/android-ndk-r17
 ```
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
 
-然后执行：
-
-```sh
-./build-android_<TARGET_PLATFORM>.sh
+# 例如: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ### 推送执行文件到板子
@@ -75,16 +72,14 @@ export LD_LIBRARY_PATH=./lib
 
 ### 编译
 
-根据指定平台修改 `build-linux_<TARGET_PLATFORM>.sh`中的交叉编译器所在目录的路径 `GCC_COMPILER`，例如修改成
+首先导入GCC_COMPILER，例如`export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu 
+`，然后执行如下命令：
 
-```sh
-export GCC_COMPILER=prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu/bin/aarch64-linux
 ```
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
 
-然后执行：
-
-```sh
-./build-linux_<TARGET_PLATFORM>.sh
+# 例如: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 
 ### 推送执行文件到板子

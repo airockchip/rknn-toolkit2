@@ -17,11 +17,14 @@ Example: A = [4,64], B = [64,32], int8 matmul test command as followed:
 # Aarch64 Linux 示例
 ## 编译
 
-将`build-linux_<TARGET_PLATFORM>.sh`中的`GCC_COMPILER`修改成交叉编译器路径, 然后执行
-
+首先导入GCC_COMPILER，例如`export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu 
+`，然后执行如下命令：
 
 ```
-./build-linux_<TARGET_PLATFORM>.sh
+./build-linux.sh -t <target> -a <arch> -b <build_type>]
+
+# 例如: 
+./build-linux.sh -t rk3588 -a aarch64 -b Release
 ```
 ## 安装
 
@@ -53,11 +56,13 @@ export LD_LIBRARY_PATH=./lib
 # Android 示例
 ## 编译
 
-将`build-android_<TARGET_PLATFORM>.sh`中的`ANDROID_NDK_PATH`修改成平台对应的NDK，然后执行
-
+首先导入ANDROID_NDK_PATH，例如`export ANDROID_NDK_PATH=~/opts/ndk/android-ndk-r18b`，然后执行如下命令：
 
 ```
-./build-android_<TARGET_PLATFORM>.sh
+./build-android.sh -t <target> -a <arch> [-b <build_type>]
+
+# 例如: 
+./build-android.sh -t rk3568 -a arm64-v8a -b Release
 ```
 
 ## 安装

@@ -23,7 +23,7 @@ class cstSigmoid:
     def shape_infer(self, node, in_shapes, in_dtypes):
         return in_shapes.copy(), in_dtypes.copy()
     def compute(self, node, inputs):
-        return 1.0 / (1.0 + np.exp(np.negative(inputs)))
+        return [1.0 / (1.0 + np.exp(np.negative(inputs[0])))]
 
 class Letter_Box_Info():
     def __init__(self, shape, new_shape, w_ratio, h_ratio, dw, dh, pad_color) -> None:
@@ -238,7 +238,7 @@ if __name__ == '__main__':
 
     # Register cstSigmoid op
     print('--> Register cstSigmoid op')
-    ret = rknn.reg_custom_op(cstSigmoid)
+    ret = rknn.reg_custom_op(cstSigmoid())
     if ret != 0:
         print('Register cstSigmoid op failed!')
         exit(ret)

@@ -1,0 +1,19 @@
+# if install failed, please change the pip source to 'https://mirror.baidu.com/pypi/simple'
+
+# base deps
+protobuf==3.20.3
+
+# utils
+psutil>=5.9.0
+ruamel.yaml>=0.17.4
+scipy>=1.5.4
+tqdm>=4.64.0
+opencv-python>=4.5.5.64
+fast-histogram>=0.11
+
+# base
+onnx==1.14.1
+onnxoptimizer==0.2.7
+onnxruntime==1.16.0
+torch>=1.10.1,<=2.1.0
+tensorflow==2.8.0
