@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.6)
 
 project(rknn_multiple_input_demo)
 
@@ -28,6 +28,10 @@ add_executable(rknn_multiple_input_demo
 target_link_libraries(rknn_multiple_input_demo
 	${RKNN_RT_LIB}
 )
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+	target_link_libraries(rknn_multiple_input_demo log)
+endif()
 
 # install target and libraries
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install/rknn_multiple_input_demo_${CMAKE_SYSTEM_NAME})

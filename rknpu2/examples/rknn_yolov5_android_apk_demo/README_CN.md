@@ -6,9 +6,7 @@
 # 使用说明
 
  - 可以使用android studio 2021.2.1 （Windows）或者android studio 2021.3.1（Linux/macOS） 编译该工程
- - yolov5s.rknn是使用rknn toolkit2将yolov5s.onnx转换而来，其中激活函数用relu替换silu，具体转换方法参考 https://github.com/airockchip/rknn_model_zoo/tree/main/models/CV/object_detection/yolo
-
-
+ - yolov5s.rknn是使用rknn toolkit2将yolov5s.onnx转换而来，其中激活函数用relu替换silu，具体转换方法参考: https://github.com/airockchip/rknn_model_zoo/blob/main/examples/yolov5/README.md 
 
 # 代码说明
 

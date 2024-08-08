@@ -23,11 +23,11 @@ python test.py
 This example will print the TOP5 labels and corresponding scores of the test image classification results. For example, the inference results of this example are as follows:
 ```
 -----TOP 5-----
-[812]: 0.999676 [class: space shuttle]
-[404]: 0.000249 [class: airliner]
-[657]: 0.000014 [class: missile]
-[833]: 0.000009 [class: submarine, pigboat, sub, U-boat]
-[466]: 0.000009 [class: bullet train, bullet]
+[812] score:0.999680 class:"space shuttle"
+[404] score:0.000249 class:"airliner"
+[657] score:0.000013 class:"missile"
+[466] score:0.000009 class:"bullet train, bullet"
+[895] score:0.000008 class:"warplane, military plane"
 ```
 
 1. The label index with the highest score is 812, the corresponding label is `space shuttle`.

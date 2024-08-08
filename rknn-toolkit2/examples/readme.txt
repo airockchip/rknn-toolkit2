@@ -21,12 +21,13 @@ The directory structure of examples is as follows:
 │   └── yolov3_416x416                  # yolov3 float model
 └── functions
     ├── accuracy_analysis               # how to use accuracy-analysis function
-    ├── multi_batch                     # how to expand batch for use multi-batch function
-    ├── npu_device_test                 # how to test npu device by connect the board
+    ├── codegen                         # how to generate c++ deployment demo when converting model
+    ├── custom_op                       # How to use custom_op function
     ├── dynamic_shape                   # how to use dynamic shape function
-    ├── gen_cpp_rknn_deploy_demo        # how to generate c++ deployment demo when converting model
     ├── hybrid_quant                    # how to use hybrid-quantization function
-    ├── quantize_algorithm_mmse         # how to use MMSE quantize algorithm
     ├── model_pruning                   # how to use model_pruning function
+    ├── multi_batch                     # how to expand batch for use multi-batch function
     ├── multi_input                     # How to convert multi-input model
-    └── custom_op                       # How to use custom_op function
+    ├── npu_device_test                 # how to test npu device by connect the board
+    ├── onnx_edit                       # how to use onnx_edit function
+    └── quantize_algorithm_mmse         # how to use MMSE quantize algorithm

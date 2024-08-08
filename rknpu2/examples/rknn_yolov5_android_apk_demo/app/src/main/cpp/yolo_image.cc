@@ -402,24 +402,12 @@ int yolo_post_process(char *grid0_buf, char *grid1_buf, char *grid2_buf,
 
 int colorConvertAndFlip(void *src, int srcFmt, void *dst,  int dstFmt, int width, int height, int flip) {
     int ret;
-    // RGA needs to ensure page alignment when using virtual addresses, otherwise it may cause
-    // internal cache flushing errors. Manually modify src/dst buf to force its 4k alignment.
-    // TODO -- convert color format and flip with OpenGL.
-    int src_len = width * height * 3 / 2;    // yuv420 buffer length.
-    void *src_ = malloc(src_len + 4096);
-    void *org_src = src_;
-    memset(src_, 0, src_len + 4096);
-    src_ = (void *)((((int64_t)src_ >> 12) + 1) << 12);
-    memcpy(src_, src, src_len);
-    int dst_len = width * height * 4;    // rgba buffer length.
-    void *dst_ = malloc(dst_len + 4096);
-    void *org_dst = dst_;
-    memset(dst_, 0, dst_len + 4096);
-    dst_ = (void *)((((int64_t)dst_ >> 12) + 1) << 12);
-    rga_buffer_t rga_src = wrapbuffer_virtualaddr((void *)src_, width, height, srcFmt);
-    rga_buffer_t rga_dst = wrapbuffer_virtualaddr((void *)dst_, width, height, dstFmt);
+    
+    rga_buffer_t rga_src = wrapbuffer_virtualaddr((void *)src, width, height, srcFmt);
+    rga_buffer_t rga_dst = wrapbuffer_virtualaddr((void *)dst, width, height, dstFmt);
 
-    if (DO_NOT_FLIP == flip) {
+    if (DO_NOT_FLIP == flip)
+    {
         // convert color format
         ret = imcvtcolor(rga_src, rga_dst, rga_src.format, rga_dst.format);
     } else {
@@ -430,10 +418,6 @@ int colorConvertAndFlip(void *src, int srcFmt, void *dst,  int dstFmt, int width
     if (IM_STATUS_SUCCESS != ret) {
         LOGE("colorConvertAndFlip failed. Ret: %s\n", imStrError((IM_STATUS)ret));
     }
-
-    memcpy(dst, dst_, dst_len);
-    free(org_src);
-    free(org_dst);
 
     return ret;
 }

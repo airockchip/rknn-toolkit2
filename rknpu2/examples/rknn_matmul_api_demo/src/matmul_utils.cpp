@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <vector>
 #include <cmath>
 #include "fp16/Float16.h"
@@ -264,4 +265,47 @@ namespace rknpu2
                                                   float eps);
     template bool arraysCosineSimilarity<int16_t>(const std::vector<int16_t> &arr1, const std::vector<int16_t> &arr2,
                                                   float eps);
-} // namespace rknpu2
+
+    // 转置模板函数
+    template <typename T>
+    void transposeB(const T *input, T *output, int32_t K, int32_t N)
+    {
+        for (int32_t k = 0; k < K; ++k)
+        {
+            for (int32_t n = 0; n < N; ++n)
+            {
+                output[n * K + k] = input[k * N + n];
+            }
+        }
+    }
+
+    template void transposeB<int8_t>(const int8_t *input, int8_t *output, int32_t K, int32_t N);
+    template void transposeB<float16>(const float16 *input, float16 *output, int32_t K, int32_t N);
+
+    // 4bit数据类型的特殊处理函数
+    void transpose4bit(const int8_t *input, int8_t *output, int32_t K, int32_t N)
+    {
+        for (int32_t k = 0; k < K; ++k)
+        {
+            for (int32_t n = 0; n < N; ++n)
+            {
+                int32_t input_idx = (k * N + n) / 2;
+                int32_t input_offset = (k * N + n) % 2;
+                int32_t output_idx = (n * K + k) / 2;
+                int32_t output_offset = (n * K + k) % 2;
+
+                uint8_t value = (input[input_idx] >> (4 * input_offset)) & 0xF;
+
+                if (output_offset == 0)
+                {
+                    output[output_idx] = (output[output_idx] & 0xF0) | value;
+                }
+                else
+                {
+                    output[output_idx] = (output[output_idx] & 0x0F) | (value << 4);
+                }
+            }
+        }
+    }
+
+} // namespace rknn

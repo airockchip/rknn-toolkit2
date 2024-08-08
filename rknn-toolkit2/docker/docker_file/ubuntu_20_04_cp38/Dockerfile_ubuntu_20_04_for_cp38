@@ -16,11 +16,12 @@ RUN cd /usr/bin \
 	&& ln -sfn pip3 pip \
 	&& ls -al
 
-RUN python -m pip install --upgrade pip -i https://mirror.baidu.com/pypi/simple --trusted-host=mirror.baidu.com
-RUN pip3 config set global.index-url https://mirror.baidu.com/pypi/simple
-RUN pip3 config set install.trusted-host mirror.baidu.com
+RUN python -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host=pypi.tuna.tsinghua.edu.cn
+RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3 config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 
 RUN python3 --version
 RUN pip3 --version
-COPY rknn_toolkit2-2.0.0b0+9bab5682-cp38-cp38-linux_x86_64.whl rknn_toolkit2-2.0.0b0+9bab5682-cp38-cp38-linux_x86_64.whl
-RUN pip3 install rknn_toolkit2-2.0.0b0+9bab5682-cp38-cp38-linux_x86_64.whl
+COPY rknn_toolkit2-2.1.0+708089d1-cp38-cp38-linux_x86_64.whl rknn_toolkit2-2.1.0+708089d1-cp38-cp38-linux_x86_64.whl
+RUN pip3 install torch==1.10.1
+RUN pip3 install rknn_toolkit2-2.1.0+708089d1-cp38-cp38-linux_x86_64.whl

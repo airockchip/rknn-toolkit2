@@ -230,91 +230,6 @@ static void* load_file(const char* file_path, size_t* file_size)
   return file_data;
 }
 
-/**
- * opencl kernel init callback for custom op
- * */
-int custom_init_callback_gpu(rknn_custom_op_context* op_ctx, rknn_custom_op_tensor* inputs, uint32_t n_inputs,
-                            rknn_custom_op_tensor* outputs, uint32_t n_outputs)
-{
-  printf("Argmax_init_callback_gpu\n");
-  // 获取opencl context
-  cl_context cl_ctx = (cl_context)op_ctx->gpu_ctx.cl_context;
-
-  return 0;
-}
-
-/**
- * opencl kernel init callback for custom op
- * */
-int compute_custom_gpu_op_float32(rknn_custom_op_context* op_ctx, rknn_custom_op_tensor* inputs, uint32_t num_inputs,
-                                 rknn_custom_op_tensor* outputs, uint32_t num_outputs)
-{
-  // dump input/output tensor info
-  // dump_tensor_attr(&inputs[0].attr);
-
-  // get context
-  cl_context cl_ctx = (cl_context)op_ctx->gpu_ctx.cl_context;
-
-  // get command queue
-  cl_command_queue queue = (cl_command_queue)op_ctx->gpu_ctx.cl_command_queue;
-
-  // get kernel
-  cl_kernel kernel = (cl_kernel)op_ctx->gpu_ctx.cl_kernel;
-
-  // import input/output buffer
-  const cl_import_properties_arm props[3] = {
-    CL_IMPORT_TYPE_ARM,
-    CL_IMPORT_TYPE_DMA_BUF_ARM,
-    0,
-  };
-
-  cl_int status;
-  cl_mem inObject = clImportMemoryARM(cl_ctx, CL_MEM_READ_WRITE, props, &inputs[0].mem.fd,
-                                      inputs[0].mem.offset + inputs[0].mem.size, &status);
-  if (status != CL_SUCCESS) {
-    printf("Tensor: %s clImportMemoryARM failed\n", inputs[0].attr.name);
-  }
-  cl_mem outObject = clImportMemoryARM(cl_ctx, CL_MEM_READ_WRITE, props, &outputs[0].mem.fd,
-                                       outputs[0].mem.offset + outputs[0].mem.size, &status);
-  if (status != CL_SUCCESS) {
-    printf("Tensor: %s clImportMemoryARM failed\n", outputs[0].attr.name);
-  }
-
-
-  int          in_type_bytes  = get_type_bytes(inputs[0].attr.type);
-  int          out_type_bytes = get_type_bytes(outputs[0].attr.type);
-  int          in_offset      = inputs[0].mem.offset / in_type_bytes;
-  int          out_offset     = outputs[0].mem.offset / out_type_bytes;
-  unsigned int elems          = inputs[0].attr.n_elems;
-
-  
-  auto dst_width = outputs[0].attr.dims[3];
-  auto dst_height = outputs[0].attr.dims[2];
-
-  // set kernel args
-  int argIndex = 0;
-  clSetKernelArg(kernel, argIndex++, sizeof(cl_mem), &inObject);
-  clSetKernelArg(kernel, argIndex++, sizeof(cl_mem), &outObject);
-
-  size_t global_work_size[1] = { (size_t)dst_width *  (size_t)dst_height};
-  auto workItems_dims = 1;
-
-  // enqueueNDRangeKernel
-  clEnqueueNDRangeKernel(queue, kernel, workItems_dims, NULL, global_work_size, NULL, 0, NULL, NULL);
-  // finish command queue
-  clFinish(queue);
-
-  return 0;
-}
-
-/**
- * opencl kernel destroy callback for custom op
- */
-int destroy_callback_gpu(rknn_custom_op_context* op_ctx)
-{
-  printf("Argmax_destroy_callback_gpu\n");
-  return 0;
-}
 
 /*-------------------------------------------
                   Main Functions
@@ -487,6 +402,9 @@ int main(int argc, char* argv[])
     printf("rknn_input_set fail! ret=%d\n", ret);
     return -1;
   }
+
+  auto core_mask = RKNN_NPU_CORE_ALL;
+  rknn_set_core_mask(ctx, (rknn_core_mask)core_mask);
 
   // Run
   printf("Begin perf ...\n");

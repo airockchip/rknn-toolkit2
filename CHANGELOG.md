@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v2.1.0
+
+- Support RV1103B (Beta)
+- Support RK2118 (Beta)
+- Support Flash Attention (Only RK3562 and RK3576)
+- Improve MatMul API
+- Improve support for int32 and int64
+- Support more operators and operator fusion
+
 ## v2.0.0-beta0
 
  - Support RK3576 (Beta)

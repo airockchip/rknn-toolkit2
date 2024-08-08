@@ -3,7 +3,7 @@
 ## Model Source
 The model used in this example come from the following open source projects:  
 https://github.com/weiliu89/caffe/tree/ssd#models  
-But the model download link has expired, please download from https://eyun.baidu.com/s/3jJhPRzo, password is 'rknn'.
+But the model download link has expired, please download from [VGG_VOC0712_SSD_300x300_iter_120000.caffemodel](https://ftzr.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/asset/vgg-ssd/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel).
 
 ## Script Usage
 *Usage:*

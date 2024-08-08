@@ -47,6 +47,14 @@ if __name__ == '__main__':
         exit(ret)
     print('done')
 
+    # Accuracy analysis
+    print('--> Accuracy analysis')
+    ret = rknn.accuracy_analysis(inputs=['./dog_224x224.jpg'], output_dir='./snapshot', target='rk3588')
+    if ret != 0:
+        print('Accuracy analysis failed!')
+        exit(ret)
+    print('done')
+
     # Export rknn model
     print('--> Export rknn model')
     ret = rknn.export_rknn('./mobilenet_v2.rknn')
@@ -58,6 +66,12 @@ if __name__ == '__main__':
     # Export encrypted RKNN model
     print('--> Export encrypted rknn model')
     ret = rknn.export_encrypted_rknn_model('./mobilenet_v2.rknn', None, 3)
+
+    rknn.release()
+
+
+    # Create RKNN object
+    rknn = RKNN(verbose=True)
 
     # load rknn model
     print('--> Load rknn model')
@@ -99,14 +113,6 @@ if __name__ == '__main__':
     outputs = rknn.inference(inputs=[img], data_format=['nhwc'])
     np.save('./functions_npu_device_test_0.npy', outputs[0])
     show_outputs(outputs)
-    print('done')
-
-    # Accuracy analysis
-    print('--> Accuracy analysis')
-    ret = rknn.accuracy_analysis(inputs=['./dog_224x224.jpg'], output_dir='./snapshot', target='rk3588')
-    if ret != 0:
-        print('Accuracy analysis failed!')
-        exit(ret)
     print('done')
 
     rknn.release()

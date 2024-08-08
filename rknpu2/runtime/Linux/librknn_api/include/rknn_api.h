@@ -86,7 +86,14 @@ extern "C" {
    This flags is generally used when the output data of the NPU is not accessed by the CPU, 
    but is accessed by the GPU or RGA to reduce the time required to flush the cache. 
    !!! Don't use this flags when you call rknn_outputs_get() to get output data.*/
-#define RKNN_FLAG_DISABLE_FLUSH_OUTPUT_MEM_CACHE    0x00008000
+#define RKNN_FLAG_DISABLE_FLUSH_OUTPUT_MEM_CACHE   0x00008000
+
+/* This flag is used when the model data buffer is allocated by NPU, and can be accessed by NPU directly. */
+#define RKNN_FLAG_MODEL_BUFFER_ZERO_COPY           0x00010000
+
+/* This flag is a memory allocation flag, which is used in rknn_create_mem2() when no context is available. */
+#define RKNN_MEM_FLAG_ALLOC_NO_CONTEXT             0x00020000
+
 
 /*
     Error code returned by the RKNN API.
@@ -437,9 +444,11 @@ typedef struct _rknn_output {
 */
 typedef struct _rknn_init_extend {
     rknn_context ctx;                                    /* rknn context */
-    int32_t      real_model_offset;                      /* real rknn model file offset, only valid when init context with rknn file path */
-    uint32_t     real_model_size;                        /* real rknn model file size, only valid when init context with rknn file path */
-    uint8_t      reserved[120];                          /* reserved */
+    int32_t      real_model_offset;                      /* real rknn model file offset, only valid when init context with rknn file path and zero-copy model model */
+    uint32_t     real_model_size;                        /* real rknn model file size, only valid when init context with rknn file path and zero-copy model model */
+    int32_t      model_buffer_fd;                        /* the fd of model buffer. */
+    uint32_t     model_buffer_flags;                     /* the flags of model_buffer */
+    uint8_t      reserved[112];                          /* reserved */
 } rknn_init_extend;
 
 /*

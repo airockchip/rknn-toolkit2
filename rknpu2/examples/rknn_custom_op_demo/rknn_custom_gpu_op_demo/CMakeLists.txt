@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.6)
 
 project(rknn_custom_gpu_op_demo)
 
@@ -58,8 +58,14 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 endif()
 
 #link cl library
-target_link_libraries(rknn_custom_gpu_op_demo  
-OpenCL dl)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+  target_link_libraries(rknn_custom_gpu_op_demo  
+  OpenCL log dl)
+else()
+  target_link_libraries(rknn_custom_gpu_op_demo  
+  OpenCL dl)
+endif()
+
 
 target_link_libraries(rkcst_argmax
   OpenCL dl 

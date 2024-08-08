@@ -16,11 +16,12 @@
 - RKNPU kernel driver is responsible for interacting with NPU hardware. It has been open source and can be found in the Rockchip kernel code.
 
 # Support Platform
-  - RK3566/RK3568 Series
   - RK3588 Series
   - RK3576 Series
+  - RK3566/RK3568 Series
   - RK3562 Series
   - RV1103/RV1106
+  - RV1103B
   - RK2118
 
 
@@ -45,7 +46,7 @@ Note:
   - Ubuntu 18.04 python 3.6/3.7
   - Ubuntu 20.04 python 3.8/3.9
   - Ubuntu 22.04 python 3.10/3.11
-- Latest version:v2.0.0-beta0
+- Latest version:v2.1.0
 
 
 
@@ -59,16 +60,13 @@ https://github.com/airockchip/rknn-llm
 
 # CHANGELOG
 
-## v2.0.0-beta0
- - Support RK3576 (Beta)
- - Support RK2118 (Beta)
- - Support SDPA (Scaled Dot Product Attention) to improve transformer performance
- - Improve custom operators support
- - Improve MatMul API
- - Improve support for Reshape,Transpose,BatchLayernorm,Softmax,Deconv,Matmul,ScatterND etc.
- - Support pytorch 2.1
- - Improve support for QAT models of pytorch and onnx
- - Optimize automatic generation of C++ code
+## v2.1.0
+ - Support RV1103B (Beta)
+- Support RK2118 (Beta)
+- Support Flash Attention (Only RK3562 and RK3576)
+- Improve MatMul API
+- Improve support for int32 and int64
+- Support more operators and operator fusion
 
  for older version, please refer [CHANGELOG](CHANGELOG.md)
 

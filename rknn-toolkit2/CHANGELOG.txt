@@ -1,3 +1,223 @@
+2024-8-1
+版本: v2.1.0:
+更新内容:
+1. 增加int32/int64的输出类型的支持
+2. 修复OneHot导致的异常问题
+3. 增加flash attention的配置
+4. 更新pip源
+5. 修复量化参数异常问题
+6. 修复精度分析余弦值不准确问题
+
+2024-7-29
+版本: v2.0.0b24:
+更新内容:
+1. 修复RV1103B若干模型错误的问题
+2. 完善Conv的tiling功能
+3. 修复Lstm子图/layernorm的报错问题
+4. 修复Caffe的Split问题
+
+2024-7-22
+版本: v2.0.0b23:
+更新内容:
+1. 修复Add+Relu在开启global_fuse后融合失效以及int8 CPU exSoftmax13算子实现输出没做round的问题
+2. 完善layernorm/exmatmul/Glu支持
+3. 删除rknn.config的target_sub_class参数
+4. 修复mmse存在的报错问题
+5. 增加对paddle导出的onnx模型的支持
+
+2024-7-15
+版本: v2.0.0b22:
+更新内容:
+1. 修复Runtime不兼容<=0.8.0版本rknpu驱动的问题
+2. 完善exWindow/reducemean/cumsum支持
+3. 修复图优化进度条显示问题
+4. 修复scipy库报错问题
+    
+2024-7-12
+版本: v2.0.0b21:
+更新内容:
+1. [修复]
+  1) 修复输入出现4维undefine layout等若干Bug
+  2) 修复1103b板子信息上错误并增加rknn_server版本检查
+  3) 修复sparse_infer开启时的报错问题
+2. [特性]
+  1) 增加one-hot/top-k算子支持
+  2) 增加exWindow mode=partition_num_first支持
+  3) 增加ConvTranspose+Sigmoid融合支持
+  4) 增加无效ReduceMean/ReduceSum消除规则
+  5) 增加1103b等小内存平台的分段传输功能
+3. 优化SDPA的仿真器推理速度
+4. 完善对带有Constant的external_data的支持
+5. 完善图优化规则优先级逻辑, 支持多级优先级
+
+2024-6-28
+版本: v2.0.0b20:
+更新内容:
+1. 增加exNorm的OP量化支持
+2. 优化模型转换中shape推理的耗时
+3. 修复Slice去除无效参数导致的错误
+4. 修复自定义OP的shape推理异常问题
+5. 修复softmax因axis为负值导致的异常
+
+2024-6-26
+版本: v2.0.0b19:
+更新内容:
+1. 修复prelu算子错误
+2. 增加Matmul API B_layout=TP_NORM功能以支持B输入是NxK的数据排布
+3. RK3588增强大channel的exNorm算子支持
+4. 增加图优化进度条显示
+5. 完善w4a8的量化计算方式
+6. 修复exmatmul/deconv/Reduce类OP异常问题
+7. 修复Concat/Add/Reshape的消融问题
+8. 修复模型裁剪type错误和shape推理的问题
+
+2024-6-20
+版本: v2.0.0b18:
+更新内容:
+1. 修复部分激活函数下溢出和Pad浮点算子出现NaN的Bug
+2. 增加更多Transpose算子规格的NPU支持;优化非对齐Concat的效率
+3. 更新exglu/exnorm/Elu/Log/Sub/Div/avgpool和多级split/concat支持
+4. 增加rv1103b的平台支持
+5. 更新Relu/Clip/LeakyRelu/Elu/TopK的5维支持
+6. 优化swap合并性能和bypass特性支持
+7. 完善reduce类OP的图优化支持
+8. 修复多slice/gather/scatternd的合并问题
+
+2024-6-13
+版本: v2.0.0b17:
+更新内容:
+1. 更新Einsum/Softmax/ReduceSum/Gather支持
+2. 增加BN/rmsnorm/Floor等消融规则
+3. 修复exmatmul/GreaterOrEqual问题
+
+2024-6-12
+版本: v2.0.0b16:
+更新内容:
+1. 完善BN与deconv的融合规则
+2. 修复Slice的交换规则问题
+
+2024-6-8
+版本: v2.0.0b15:
+更新内容:
+1. 增加config的quantized_hybrid_level配置参数
+2. 增加bn和conv/deconv的合并规则
+3. 更新Gather/TP/并行OP相关支持
+4. 增加对sequence类型的部分支持
+5. 修复w8a16下mmse可能报错的问题
+
+2024-5-31
+版本: v2.0.0b14:
+更新内容:
+1. Runtime对部分CPU算子模型解析参数错误的兼容性问题
+2. 增加convtranspose+relu/leakyrelu的融合
+3. 优化常量折叠对空tensor的支持
+4. 完善avgpool的图优化处理
+
+2024-5-29
+版本: v2.0.0b13:
+更新内容:
+1. 修复多batch SDPA算子结果错误和Runtime兼容老版本rknn模型问题
+2. 增加rv1103平台的SDPA支持
+3. 修改quantized_dtype定义, 增加部分w4a16/w4a8的量化支持
+4. 修复混合量化推荐功能异常问题
+
+2024-5-24
+版本: v2.0.0b12:
+更新内容:
+1. 修复RK3562 exNorm NPU算子中间结果溢出问题
+2. 增加对大kernel_size卷积支持
+3. 完善Glu子图合并支持和非4D支持
+4. 修复1维Dropout问题
+5. 修复CodeGen输入文件异常问题
+
+2024-5-20
+版本: v2.0.0b11:
+更新内容:
+1. 增加exNorm CPU算子支持
+2. 增加scalar常量/reducel2/Gelu子图支持
+3. 优化axis-OP附近Reshape消除规则
+4. 优化exMatMul的执行性能和精度问题
+5. 修复精度分析core_mask参数失效问题
+6. 修复带Constant节点的常量折叠问题
+7. 修复超大模型的内存问题
+8. 修复gather子图/SDPA/swap规则问题
+
+2024-5-16
+版本: v2.0.0b10:
+更新内容:
+1. RK3576增加exSDPA算子多核支持
+2. 修复Reshape/Transpose算子Bug/部分exNorm结果不正确问题
+3. 优化exWindow/Gather子图融合问题
+4. 修复并行Slice消除问题
+5. 修复where转Clip的报错问题
+
+2024-5-7
+版本: v2.0.0b9:
+更新内容:
+1. 将exLayerNorm/exMeanVarianceNorm/RMSNorm统一转换成exNrom
+2. 完善exMatMul算子功能
+3. 完善Transpose/Reshape图优化功能
+4. 增加Transformer模型性能
+5. 完善Reshape/TP/Mul/Gather消融功能
+6. 优化Concat/Split/Slice的性能
+7. 增加exWindow/SDPA/大尺寸Conv的支持
+8. 优化动态shape的图优化处理流程
+
+2024-4-28
+版本: v2.0.0b8:
+更新内容:
+1. 优化Concat/Split的对齐规则
+2. 修复CodeGen在没有设置输入时的报错
+3. 修复错误捕抓模块的问题
+4. 修复shape推理的死循环问题
+5. 修复inference接口在传入大写的data_format时的报错问题
+
+2024-4-23
+版本: v2.0.0b7:
+更新内容:
+1. 修复gather融合在indices为scalar值时的错误
+
+2024-4-19
+版本: v2.0.0b5:
+更新内容:
+1. 增加对rv1103的i16的混合量化支持
+2. 优化rknn.config错误日志
+3. 优化大尺寸stride的conv的支持
+4. 优化rknnlog异常捕抓模块日志太长、不清晰的问题
+5. 修复静态图动态化时reshape参数错误的问题
+
+2024-4-15
+版本: v2.0.0b4:
+更新内容:
+1. 增加对TopK的部分转换支持
+
+2024-4-12
+版本: v2.0.0b3:
+更新内容:
+1. [RK3588]增加更多Transpose规格的NPU算子支持
+2. 修复fp16的模型加载报错问题
+
+2024-4-9
+版本: v2.0.0b2:
+更新内容:
+1. 增加exSwish的beta属性支持
+2. 修复input_size_list解析错误的问题
+
+2024-4-3
+版本: v2.0.0b1:
+更新内容:
+1. 修复Div算子height/width方向broadcast情况错误
+2. 增加RKNN_FLAG_MODEL_BUFFER_ZERO_COPY标志，用于NPU分配的model
+buffer初始化上下文
+3. 修复部分Transpose和Reshape错误问题
+4. 增加Split/TP/Relu的消除规则
+5. 增加动态shape的模型裁剪和CodeGen支持
+6. 更新对MeanVarNorm/GLU的支持
+7. 修复EinSum/Slice转换问题
+8. 修复量化模型Clip的min值问题
+9. 更新QAT对输入&输出量化参数不一致的支持
+10. 修复常量折叠可能存在的遗留无效常量问题
+
 2024-3-22
 版本: v2.0.0b0:
 更新内容:

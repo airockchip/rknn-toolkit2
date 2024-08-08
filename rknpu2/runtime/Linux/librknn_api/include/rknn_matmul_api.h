@@ -21,6 +21,16 @@ extern "C" {
 
 typedef rknn_context rknn_matmul_ctx;
 
+typedef enum _rknn_matmul_quant_type
+{
+  RKNN_QUANT_TYPE_PER_LAYER_SYM    = 0,
+  RKNN_QUANT_TYPE_PER_LAYER_ASYM   = 1,
+  RKNN_QUANT_TYPE_PER_CHANNEL_SYM  = 2,
+  RKNN_QUANT_TYPE_PER_CHANNEL_ASYM = 3,
+  RKNN_QUANT_TYPE_PER_GROUP_SYM    = 4,
+  RKNN_QUANT_TYPE_PER_GROUP_ASYM   = 5,
+} rknn_matmul_quant_type;
+
 typedef struct _rknn_quant_params
 {
   char name[RKNN_MAX_NAME_LEN];
@@ -45,6 +55,7 @@ typedef enum _rknn_matmul_type
   RKNN_FLOAT16_MM_INT8_TO_FLOAT16    = 6,
   RKNN_FLOAT16_MM_INT4_TO_FLOAT32    = 7,
   RKNN_FLOAT16_MM_INT4_TO_FLOAT16    = 8,
+  RKNN_INT8_MM_INT8_TO_FLOAT32       = 9,
   RKNN_INT4_MM_INT4_TO_INT16         = 10,
   RKNN_INT8_MM_INT4_TO_INT32         = 11,
 } rknn_matmul_type;
@@ -68,8 +79,12 @@ inline static const char* get_matmul_type_string(rknn_matmul_type type)
     return "RKNN_INT4_MM_INT4_TO_INT16";
   case RKNN_FLOAT16_MM_INT4_TO_FLOAT32:
     return "RKNN_FLOAT16_MM_INT4_TO_FLOAT32";
+  case RKNN_FLOAT16_MM_INT4_TO_FLOAT16:
+    return "RKNN_FLOAT16_MM_INT4_TO_FLOAT16";
   case RKNN_INT8_MM_INT4_TO_INT32:
     return "RKNN_INT8_MM_INT4_TO_INT32";
+  case RKNN_INT8_MM_INT8_TO_FLOAT32:
+    return "RKNN_INT8_MM_INT8_TO_FLOAT32";
   default:
     return "UNKNOW";
   }
@@ -112,6 +127,16 @@ typedef struct _rknn_matmul_shape
 } rknn_matmul_shape;
 
 /*
+  the layout of matmul input/output tensor.
+*/
+typedef enum
+{
+  RKNN_MM_LAYOUT_NORM    = 0,
+  RKNN_MM_LAYOUT_NATIVE  = 1,
+  RKNN_MM_LAYOUT_TP_NORM = 2,
+} rknn_matmul_layout;
+
+/*
   matmul information struct
  */
 typedef struct rknn_matmul_info_t
@@ -140,6 +165,7 @@ typedef struct rknn_matmul_info_t
   // A and C only support per layer
   // 0: per layer
   // 1: per channel
+  // 2: per group
   int16_t B_quant_type;
 
   // matmul native layout for A and C
@@ -153,8 +179,11 @@ typedef struct rknn_matmul_info_t
   // iommu domain id, each domain has 4GB of space
   int32_t iommu_domain_id;
 
+  // B_quant_type set 2, group size is enable
+  int16_t group_size;
+
   // reserved field
-  int8_t reserved[36];
+  int8_t reserved[34];
 } rknn_matmul_info;
 
 /*  rknn_matmul_create
@@ -168,7 +197,7 @@ typedef struct rknn_matmul_info_t
 */
 int rknn_matmul_create(rknn_matmul_ctx* ctx, rknn_matmul_info* info, rknn_matmul_io_attr* io_attr);
 
-/*  rknn_matmul_create_dyn_shape
+/*  rknn_matmul_create_dynamic_shape
 
     params:
         rknn_matmul_ctx *ctx                the handle of context.
@@ -182,7 +211,7 @@ int rknn_matmul_create(rknn_matmul_ctx* ctx, rknn_matmul_info* info, rknn_matmul
 /*
   原来的info.M, K, N无效
 */
-int rknn_matmul_create_dyn_shape(rknn_matmul_ctx* ctx, rknn_matmul_info* info, int shape_num,
+int rknn_matmul_create_dynamic_shape(rknn_matmul_ctx* ctx, rknn_matmul_info* info, int shape_num,
                                  rknn_matmul_shape dynamic_shapes[], rknn_matmul_io_attr io_attrs[]);
 
 /* rknn_matmul_set_io_mem
@@ -498,14 +527,11 @@ int rknn_matmul_destroy(rknn_matmul_ctx ctx);
         void* B_output              B native layout buffer.
         int   K                     K
         int   N                     N
-        int   subN                  subN
-        int   subK                  subK
-        rknn_matmul_type type       matmul type
+        rknn_matmul_info info       matmul info
     return:
         int                         error code.
  */
-int rknn_B_normal_layout_to_native_layout(void* B_input, void* B_output, int K, int N, int subN, int subK,
-                                          rknn_matmul_type type);
+int rknn_B_normal_layout_to_native_layout(void* B_input, void* B_output, int K, int N, rknn_matmul_info* info);
 
 #ifdef __cplusplus
 } // extern "C"

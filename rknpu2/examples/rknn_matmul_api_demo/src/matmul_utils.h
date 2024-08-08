@@ -26,5 +26,10 @@ namespace rknpu2
     template <typename T>
     bool arraysCosineSimilarity(const std::vector<T> &arr1, const std::vector<T> &arr2, float eps = 0.9999f);
 
+    template <typename T>
+    void transposeB(const T *input, T *output, int32_t K, int32_t N);
+
+    void transpose4bit(const int8_t *input, int8_t *output, int32_t K, int32_t N);
+
 } // namespace rknpu2
 #endif

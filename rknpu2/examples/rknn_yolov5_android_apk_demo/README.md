@@ -7,7 +7,7 @@
 
  - Using the andorid studio 2021 1.2.1 or 1.3.1, higher version
 
- - Yolov5s.rknn is required, which can be converted from yolov5s.onnx, which SiLU activation layer was replace with ReLU. The detail should refer to this link: https://github.com/airockchip/rknn_model_zoo/tree/main/models/CV/object_detection/yolo
+ - Yolov5s.rknn is required, which can be converted from yolov5s.onnx, which SiLU activation layer was replace with ReLU. The detail should refer to this link: https://github.com/airockchip/rknn_model_zoo/blob/main/examples/yolov5/README.md 
 
 
 # Structure

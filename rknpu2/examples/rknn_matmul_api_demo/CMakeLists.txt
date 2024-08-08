@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.6)
 
 project(rknn_api_demo)
 
@@ -36,7 +36,19 @@ add_executable(rknn_matmul_api_demo
 target_link_libraries(rknn_matmul_api_demo
   ${RKNN_RT_LIB}
 )
+
+# rknn_matmul_api_dynshape_demo
+add_executable(rknn_matmul_api_dynshape_demo
+  src/rknn_matmul_api_dynshape_demo.cpp
+  src/matmul_utils.cpp
+)
+
+target_link_libraries(rknn_matmul_api_dynshape_demo
+  ${RKNN_RT_LIB}
+)
+
 # install target and libraries
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install/rknn_matmul_api_demo_${CMAKE_SYSTEM_NAME})
 install(TARGETS rknn_matmul_api_demo DESTINATION ./)
+install(TARGETS rknn_matmul_api_dynshape_demo DESTINATION ./)
 install(PROGRAMS ${RKNN_RT_LIB} DESTINATION lib)

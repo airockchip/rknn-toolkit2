@@ -25,14 +25,26 @@
 extern "C" {
 #endif
 
+
 static rknn_custom_op user_op{};
 
 static char*  cl_kernel_source = "#pragma OPENCL EXTENSION cl_arm_printf : enable \n"
-" __kernel void Argmax_float(__global const float* src_buf, __global float* dst_buf) \n"
+" __kernel void Argmax_channel_float(__global const float* src_buf, const int inputChannel, __global float* dst_buf) \n"
 "{\n"
-" int idx = get_global_id(0);\n" 
-" unsigned int srcStride = get_global_size(0);\n"
-" dst_buf[idx] = (src_buf[idx + srcStride] > src_buf[idx]) ? 1 : 0 ;\n" 
+" unsigned int i = get_global_id(0);\n" 
+" unsigned int j = get_global_id(1); \n"
+" unsigned int width = get_global_size(0);\n"
+" unsigned int height = get_global_size(1);\n"
+" int max_index = 0;\n"
+" float max_value = src_buf[i*width+j];\n" 
+" for (int c=1; c < inputChannel; c++) {\n"
+"   float value = src_buf[c*height*width + i*width+j];\n"
+"   if (value > max_value) {\n"
+"     max_value = value;\n"
+"     max_index = c;\n"
+"    }\n"
+"  }\n"
+" dst_buf[i*width+j] = max_index;\n" 
 "}\n";
 
 
@@ -106,27 +118,28 @@ int compute_custom_gpu_op_float32(rknn_custom_op_context* op_ctx, rknn_custom_op
     printf("Tensor: %s clImportMemoryARM failed\n", outputs[0].attr.name);
   }
 
-
   int          in_type_bytes  = get_type_bytes(inputs[0].attr.type);
   int          out_type_bytes = get_type_bytes(outputs[0].attr.type);
   int          in_offset      = inputs[0].mem.offset / in_type_bytes;
   int          out_offset     = outputs[0].mem.offset / out_type_bytes;
   unsigned int elems          = inputs[0].attr.n_elems;
 
-  
+  auto in_channel = inputs[0].attr.dims[1]; 
   auto dst_width = outputs[0].attr.dims[3];
   auto dst_height = outputs[0].attr.dims[2];
 
   // set kernel args
   int argIndex = 0;
   clSetKernelArg(kernel, argIndex++, sizeof(cl_mem), &inObject);
+  clSetKernelArg(kernel, argIndex++, sizeof(int), &in_channel);
   clSetKernelArg(kernel, argIndex++, sizeof(cl_mem), &outObject);
 
-  size_t global_work_size[1] = { (size_t)dst_width *  (size_t)dst_height};
-  auto workItems_dims = 1;
+  size_t global_work_size[] = { (size_t)dst_width , (size_t)dst_height};
+  auto workItems_dims = 2;
 
   // enqueueNDRangeKernel
   clEnqueueNDRangeKernel(queue, kernel, workItems_dims, NULL, global_work_size, NULL, 0, NULL, NULL);
+
   // finish command queue
   clFinish(queue);
 
@@ -156,7 +169,7 @@ RKNN_CUSTOM_OP_EXPORT rknn_custom_op* get_rknn_custom_op()
   user_op.compute = compute_custom_gpu_op_float32;
   user_op.destroy = destroy_callback_gpu;
 
-  char kernel_name[] = "Argmax_float";
+  char kernel_name[] = "Argmax_channel_float";
   strcpy(user_op.cl_kernel_name, kernel_name);
 
   user_op.cl_kernel_source = cl_kernel_source;

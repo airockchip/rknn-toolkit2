@@ -42,15 +42,15 @@ static int nms(int validCount, std::vector<float> &outputLocations, std::vector<
 {
     for (int i = 0; i < validCount; ++i)
     {
-        if (order[i] == -1|| classIds[i] != filterId)
+        int n = order[i];
+        if (n == -1|| classIds[n] != filterId)
         {
             continue;
         }
-        int n = order[i];
         for (int j = i + 1; j < validCount; ++j)
         {
             int m = order[j];
-            if (m == -1 || classIds[i] != filterId)
+            if (m == -1 || classIds[m] != filterId)
             {
                 continue;
             }
