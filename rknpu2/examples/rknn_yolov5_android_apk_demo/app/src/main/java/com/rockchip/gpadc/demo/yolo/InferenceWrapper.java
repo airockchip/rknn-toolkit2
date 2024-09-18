@@ -45,7 +45,7 @@ public class InferenceWrapper {
         if (navite_init(im_height, im_width, im_channel, modelPath) != 0) {
             throw new IOException("rknn init fail!");
         }
-        return 0;
+        return 0; 
     }
 
 
@@ -58,10 +58,10 @@ public class InferenceWrapper {
 
     }
 
-    public InferenceResult.OutputBuffer run(byte[] inData) {
+    public InferenceResult.OutputBuffer run(long img_buf_handle, int camera_width, int camera_height) {
 //        long startTime = System.currentTimeMillis();
 //        long endTime;
-        native_run(inData, mOutputs.mGrid0Out, mOutputs.mGrid1Out, mOutputs.mGrid2Out);
+        native_run(img_buf_handle, camera_width, camera_height, mOutputs.mGrid0Out, mOutputs.mGrid1Out, mOutputs.mGrid2Out);
 //        this.inf_count += 1;
 //        endTime = System.currentTimeMillis();
 //        this.inf_time += (endTime - startTime);
@@ -128,7 +128,7 @@ public class InferenceWrapper {
 
     private native int navite_init(int im_height, int im_width, int im_channel, String modelPath);
     private native void native_deinit();
-    private native int native_run(byte[] inData, byte[] grid0Out, byte[] grid1Out, byte[] grid2Out);
+    private native int native_run(long img_buf_handle, int cam_width, int cam_height, byte[] grid0Out, byte[] grid1Out, byte[] grid2Out);
     private native int native_post_process(byte[] grid0Out, byte[] grid1Out, byte[] grid2Out,
                                            int[] ids, float[] scores, float[] boxes);
 

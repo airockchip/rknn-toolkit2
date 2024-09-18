@@ -4,8 +4,8 @@
 - You can refer to the following link for installing WSL: https://learn.microsoft.com/en-us/windows/wsl/install
 
 ## 2. Using RKNN-Toolkit2 in WSL
-1. Refer to the document[《Rockchip_RKNPU_Quick_Start》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/01_Rockchip_RKNPU_Quick_Start_RKNN_SDK_V2.0.0beta0_EN.pdf) to install the RKNN-ToolKit2 environment in WSL
-2. Refer to the document[《Rockchip_RKNPU_User_Guide》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/02_Rockchip_RKNPU_User_Guide_RKNN_SDK_V2.0.0beta0_EN.pdf) for model conversion, quantization, and other operations in WSL.
+1. Refer to the document[《Rockchip_RKNPU_Quick_Start》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/) to install the RKNN-ToolKit2 environment in WSL
+2. Refer to the document[《Rockchip_RKNPU_User_Guide》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/) for model conversion, quantization, and other operations in WSL.
 
 ## 3. Using RKNN-Toolkit2 for Board Debugging in WSL
 
@@ -45,7 +45,7 @@ adb connect <IP address:port>
 - `IP address` is the IP address of the Windows host.
 
 ### 3.3 Using RKNN-Toolkit2 for Board Debugging
-Refer to the document [《Rockchip_RKNPU_User_Guide》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/02_Rockchip_RKNPU_User_Guide_RKNN_SDK_V2.0.0beta0_EN.pdf) for board inference, accuracy analysis, and other operations in WSL.
+Refer to the document [《Rockchip_RKNPU_User_Guide》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/) for board inference, accuracy analysis, and other operations in WSL.
 
 
 

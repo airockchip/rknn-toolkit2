@@ -4,8 +4,8 @@
 - 可参考 https://learn.microsoft.com/zh-cn/windows/wsl/install
 
 ## 2. WSL 中使用RKNN-Toolkit2
-1. 参考[《Rockchip_RKNPU_Quick_Start手册》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/01_Rockchip_RKNPU_Quick_Start_RKNN_SDK_V2.0.0beta0_CN.pdf)在 WSL 中安装RKNN-ToolKit2环境
-2. 参考[《Rockchip_RKNPU_User_Guide手册》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/02_Rockchip_RKNPU_User_Guide_RKNN_SDK_V2.0.0beta0_CN.pdf)在 WSL 进行模型转换、量化等操作
+1. 参考[《Rockchip_RKNPU_Quick_Start手册》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/)在 WSL 中安装RKNN-ToolKit2环境
+2. 参考[《Rockchip_RKNPU_User_Guide手册》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/)在 WSL 进行模型转换、量化等操作
 
 ## 3. WSL 中使用RKNN-Toolkit2进行连板调试
 
@@ -45,7 +45,7 @@ adb connect <IP地址:端口号>
 - `IP地址` 为 Windows主机 的IP地址
 
 ### 3.3 使用RKNN-ToolKit2进行连板调试
-参考[《Rockchip_RKNPU_User_Guide手册》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/02_Rockchip_RKNPU_User_Guide_RKNN_SDK_V2.0.0beta0_CN.pdf)在 WSL 进行连板推理、连板精度分析等操作
+参考[《Rockchip_RKNPU_User_Guide手册》](https://github.com/airockchip/rknn-toolkit2/blob/master/doc/)在 WSL 进行连板推理、连板精度分析等操作
 
 
 

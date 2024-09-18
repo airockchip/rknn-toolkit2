@@ -1,4 +1,5 @@
 # Yolo-v5 demo
+The following <TARGET_PLATFORM> is RV1106, RV1106B RV1103 or RV1103B.
 
 # Export RKNN Model
 
@@ -10,7 +11,7 @@ Please refer https://github.com/airockchip/rknn_model_zoo/tree/main/models/CV/ob
 
 ### Compiling and Building
 
-The 'build-linux_RV1106.sh' can be used for compiling demo for target including RV1106 and RV1103.
+The 'build-linux.sh' can be used for compiling demo for target including RV1106 and RV1103.
 
 Changing the cross compiler path via the setting the `RK_RV1106_TOOLCHAIN`, shown as below:
 
@@ -21,7 +22,7 @@ export RK_RV1106_TOOLCHAIN=~/opts/toolchain/arm-rockchip830-linux-uclibcgnueabih
 then, run the script：
 
 ```sh
-./build-linux_RV1106.sh
+./build-linux.sh -t <TARGET_PLATFORM> -b Release
 ```
 
 Note: The RV1106 and RV1103 requires this 'arm-rockchip830-linux-uclibcgnueabihf' compiler to build the demo or another applications. 
@@ -48,4 +49,4 @@ Note:
 
 - LD_LIBRARY_PATH must use the full path
 - For performance reasons, the output fmt of the RKNN model is set to **RKNN_QUERY_NATIVE_NHWC_OUTPUT_ATTR** in the demo to obtain better inference performance. At this time, the model output buf is arranged in the order of NHWC. For example, the original shape of the first output is **1,255,80,80**. At this case, the shape output by RKNN is 1,80,80,255. The post-processing in this demo is also optimized and adjusted according to this order.
-
+- RV1103B and RV1106B do not support NHWC output yet

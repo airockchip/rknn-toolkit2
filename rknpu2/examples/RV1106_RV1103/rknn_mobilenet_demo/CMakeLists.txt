@@ -28,15 +28,18 @@ target_link_libraries(rknn_mobilenet_demo
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install/rknn_mobilenet_demo_${CMAKE_SYSTEM_NAME})
 install(TARGETS rknn_mobilenet_demo DESTINATION ./)
 
-add_executable(rknn_mobilenet_nhwc_demo
-    src/main_nhwc.cc
-)
+if(TARGET_SOC STREQUAL "RV1106_RV1103")
+  add_executable(rknn_mobilenet_nhwc_demo
+      src/main_nhwc.cc
+  )
+  target_link_libraries(rknn_mobilenet_nhwc_demo
+    ${RKNN_RT_LIB}
+  )
+  install(TARGETS rknn_mobilenet_nhwc_demo DESTINATION ./)
+endif()
 
-target_link_libraries(rknn_mobilenet_nhwc_demo
-  ${RKNN_RT_LIB}
-)
 
-install(TARGETS rknn_mobilenet_nhwc_demo DESTINATION ./)
-
-install(DIRECTORY model DESTINATION ./)
+install(DIRECTORY model/${TARGET_SOC} DESTINATION ./model)
 install(PROGRAMS ${RKNN_RT_LIB} DESTINATION lib)
+file(GLOB IMAGE_FILES "model/*.jpg")
+install(FILES ${IMAGE_FILES} DESTINATION ./model/)

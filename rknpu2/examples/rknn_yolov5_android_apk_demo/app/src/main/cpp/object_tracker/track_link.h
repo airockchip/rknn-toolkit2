@@ -10,7 +10,7 @@ extern "C"{
 #endif
 #include <android/log.h>
 #define LOG_TAG    "hpc -- JNILOG" // 这个是自定义的LOG的标识
-#define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG, __VA_ARGS__)
+// #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG, __VA_ARGS__)
 
 typedef struct
 {

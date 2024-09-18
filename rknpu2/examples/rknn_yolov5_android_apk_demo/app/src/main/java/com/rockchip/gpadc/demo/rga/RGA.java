@@ -20,17 +20,17 @@ public class RGA {
      * @param flip: flip type, use the flip defined in HALDefine, if not flip, set -1.
      * @return: -1 means failure,
      */
-    public static int colorConvertAndFlip(byte[] src, int srcFmt, byte[] dst, int dstFmt,
+    public static int colorConvertAndFlip(byte[] src, int srcFmt, long npu_buf_handle, int dstFmt,
                                    int width, int height, int flip) {
 
-        if (src == null || dst == null) {
+        if (src == null) {
             Log.w("rkyolo.RGA", "src or dst is null");
             return -1;
         }
 
-        return color_convert_and_flip(src, srcFmt, dst, dstFmt, width, height, flip);
+        return color_convert_and_flip(src, srcFmt, npu_buf_handle, dstFmt, width, height, flip);
     }
 
-    private static native int color_convert_and_flip(byte[] src, int srcFmt, byte[] dst, int dstFmt,
+    private static native int color_convert_and_flip(byte[] src, int srcFmt, long npu_buf_handle, int dstFmt,
                                             int width, int height, int flip);
 }

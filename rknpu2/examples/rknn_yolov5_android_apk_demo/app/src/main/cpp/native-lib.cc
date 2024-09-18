@@ -48,12 +48,12 @@ JNIEXPORT void JNICALL Java_com_rockchip_gpadc_demo_yolo_InferenceWrapper_native
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_rockchip_gpadc_demo_yolo_InferenceWrapper_native_1run
-  (JNIEnv *env, jobject obj, jbyteArray in,
+  (JNIEnv *env, jobject obj, jlong img_buf_handle, 
+	jint cam_width, jint cam_height,
    jbyteArray grid0Out, jbyteArray grid1Out, jbyteArray grid2Out) {
 
-
   	jboolean inputCopy = JNI_FALSE;
-  	jbyte* const inData = env->GetByteArrayElements(in, &inputCopy);
+  	// jbyte* const inData = env->GetByteArrayElements(in, &inputCopy);
 
  	jboolean outputCopy = JNI_FALSE;
 
@@ -61,9 +61,9 @@ JNIEXPORT jint JNICALL Java_com_rockchip_gpadc_demo_yolo_InferenceWrapper_native
 	jbyte* const y1 = env->GetByteArrayElements(grid1Out, &outputCopy);
 	jbyte* const y2 = env->GetByteArrayElements(grid2Out, &outputCopy);
 
-	run_yolo((char *)inData, (char *)y0, (char *)y1, (char *)y2);
+	run_yolo(img_buf_handle, cam_width, cam_height, (char *)y0, (char *)y1, (char *)y2);
 
-	env->ReleaseByteArrayElements(in, inData, JNI_ABORT);
+	//env->ReleaseByteArrayElements(in, inData, JNI_ABORT);
 	env->ReleaseByteArrayElements(grid0Out, y0, 0);
 	env->ReleaseByteArrayElements(grid1Out, y1, 0);
 	env->ReleaseByteArrayElements(grid2Out, y2, 0);
@@ -118,6 +118,20 @@ JNIEXPORT void JNICALL Java_com_rockchip_gpadc_demo_tracker_ObjectTracker_native
     destroy_tracker(handle);
 }
 
+extern "C"
+JNIEXPORT jlong JNICALL Java_com_rockchip_gpadc_demo_ImageBufferQueue_create_1npu_1img_1buffer
+                                                            (JNIEnv * env, jobject obj, 
+															jint img_format) {
+    return create_npu_mem(img_format);
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_rockchip_gpadc_demo_ImageBufferQueue_release_1npu_1img_1buffer
+                                                            (JNIEnv * env, jobject obj,
+                                                            jlong npu_buf_handle) {
+   release_npu_mem(npu_buf_handle);
+}
+
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_rockchip_gpadc_demo_tracker_ObjectTracker_native_1track
@@ -170,16 +184,17 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_rockchip_gpadc_demo_rga_RGA_color_1convert_1and_1flip(JNIEnv *env, jclass clazz,
                                                                jbyteArray src, jint src_fmt,
-                                                               jbyteArray dst, jint dst_fmt,
+															   jlong npu_buf_handle,
+                                                               jint dst_fmt,
                                                                jint width, jint height, jint flip) {
 	jboolean copy = JNI_FALSE;
 	jbyte* src_buf = env->GetByteArrayElements(src, &copy);
-	jbyte* dst_buf = env->GetByteArrayElements(dst, &copy);
+	//jbyte* dst_buf = env->GetByteArrayElements(dst, &copy);
 
-	jint ret = colorConvertAndFlip(src_buf, src_fmt, dst_buf, dst_fmt, width, height, flip);
+	jint ret = colorConvertAndFlip(src_buf, src_fmt, npu_buf_handle, dst_fmt, width, height, flip);
 
 	env->ReleaseByteArrayElements(src, src_buf, 0);
-	env->ReleaseByteArrayElements(dst, dst_buf, 0);
+	// env->ReleaseByteArrayElements(dst, dst_buf, 0);
 
 	return ret;
 }

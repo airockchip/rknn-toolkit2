@@ -22,6 +22,10 @@ include_directories(${CMAKE_SOURCE_DIR}/../../3rdparty)
 # rknn_yolov5_demo
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+if(TARGET_SOC STREQUAL "RV1106_RV1103")
+    add_definitions(-DRV1106_RV1103)
+endif()
+
 add_executable(rknn_yolov5_demo
             src/main.cc
             src/postprocess.cc
@@ -37,4 +41,9 @@ install(TARGETS rknn_yolov5_demo DESTINATION ./)
 
 
 install(PROGRAMS ${RKNN_RT_LIB} DESTINATION lib)
-install(DIRECTORY model DESTINATION ./)
+install(DIRECTORY model/${TARGET_SOC} DESTINATION ./model)
+file(GLOB IMAGE_FILES "model/*.jpg")
+install(FILES ${IMAGE_FILES} DESTINATION ./model/)
+
+file(GLOB TXT_FILES "model/*.txt")
+install(FILES ${TXT_FILES} DESTINATION ./model/)

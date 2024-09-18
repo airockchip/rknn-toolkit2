@@ -19,17 +19,12 @@
 
 #include <cstdint>
 
-#include "rknn_api.h"
-
 #include "yolo_image.h"
-#include "rga/rga.h"
-#include "rga/im2d.h"
 #include "rga/im2d_version.h"
 #include "post_process.h"
 
-//#define DEBUG_DUMP
+// #define DEBUG_DUMP
 //#define EVAL_TIME
-#define ZERO_COPY 1
 #define DO_NOT_FLIP -1
 
 int g_inf_count = 0;
@@ -40,8 +35,8 @@ rknn_context ctx = 0;
 
 bool created = false;
 
-int img_width = 0;    // the width of the actual input image
-int img_height = 0;   // the height of the actual input image
+int img_width = 0;
+int img_height = 0;
 
 int m_in_width = 0;   // the width of the RKNN model input
 int m_in_height = 0;  // the height of the RKNN model input
@@ -59,13 +54,27 @@ rknn_tensor_attr output_attrs[3];
 rknn_tensor_mem *input_mems[1];
 rknn_tensor_mem *output_mems[3];
 
-rga_buffer_t g_rga_src;
-rga_buffer_t g_rga_dst;
-
 std::vector<float> out_scales;
 std::vector<int32_t> out_zps;
 
-double __get_us(struct timeval t) { return (t.tv_sec * 1000000 + t.tv_usec); }
+static double __get_us(struct timeval t) { return (t.tv_sec * 1000000 + t.tv_usec); }
+
+static int dump_bin_to_file(void *pBuffer, const char *fileName, const size_t sz_data)
+{
+    FILE *pFile = fopen(fileName, "wb");
+    if (pFile == NULL) {
+        puts("error in outputing files.");
+        return -1;
+    }
+
+    fwrite(pBuffer, 1, sz_data, pFile);
+
+    if (fclose(pFile) != 0) {
+        puts("Error in closing files.");
+        return -1;
+    }
+    return 0;
+}
 
 
 int create(int im_height, int im_width, int im_channel, char *model_path)
@@ -74,6 +83,8 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
     img_width = im_width;
 
     LOGI("try rknn_init!")
+
+    LOGI("img width: %d, height: %d", im_width, im_height);
 
     // 0. RGA version check
     LOGI("RGA API Version: %s", RGA_API_VERSION)
@@ -113,10 +124,7 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
     rknn_query_cmd cmd = RKNN_QUERY_IN_OUT_NUM;
     // 3.1 Query input/output num.
     ret = rknn_query(ctx, cmd, &io_num, sizeof(io_num));
-    if (ret != RKNN_SUCC) {
-        LOGE("rknn_query io_num fail!ret=%d\n", ret);
-        return -1;
-    }
+
     n_input = io_num.n_input;
     n_output = io_num.n_output;
 
@@ -131,7 +139,7 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
             return -1;
         }
     }
-    // 3.2.0 Update global model input shape.
+    // 3.3 Update global model input shape.
     if (RKNN_TENSOR_NHWC == input_attrs[0].fmt) {
         m_in_height = input_attrs[0].dims[1];
         m_in_width = input_attrs[0].dims[2];
@@ -145,11 +153,7 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
         return -1;
     }
 
-    // set scale_w, scale_h for post process
-    scale_w = (float)m_in_width / img_width;
-    scale_h = (float)m_in_height / img_height;
-
-    // 3.3 Query output attributes
+    // 3.4 Query output attributes
     memset(output_attrs, 0, n_output * sizeof(rknn_tensor_attr));
     for (int i = 0; i < n_output; ++i) {
         output_attrs[i].index = i;
@@ -164,13 +168,7 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
         out_zps.push_back(output_attrs[i].zp);
     }
 
-#if ZERO_COPY
-    // 4. Set input/output buffer
-    // 4.1 Set inputs memory
-    // 4.1.1 Create input tensor memory, input data type is INT8, yolo has only 1 input.
-    input_mems[0] = rknn_create_mem(ctx, input_attrs[0].size_with_stride * sizeof(char));
-    memset(input_mems[0]->virt_addr, 0, input_attrs[0].size_with_stride * sizeof(char));
-    // 4.1.2 Update input attrs
+    // 4.1 Update input attrs
     input_attrs[0].index = 0;
     input_attrs[0].type = RKNN_TENSOR_UINT8;
     input_attrs[0].size = m_in_height * m_in_width * m_in_channel * sizeof(char);
@@ -178,27 +176,17 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
     // TODO -- The efficiency of pass through will be higher, we need adjust the layout of input to
     //         meet the use condition of pass through.
     input_attrs[0].pass_through = 0;
-    // 4.1.3 Set input buffer
-    rknn_set_io_mem(ctx, input_mems[0], &(input_attrs[0]));
-    // 4.1.4 bind virtual address to rga virtual address
-    g_rga_dst = wrapbuffer_virtualaddr((void *)input_mems[0]->virt_addr, m_in_width, m_in_height,
-                                       RK_FORMAT_RGB_888);
 
-    // 4.2 Set outputs memory
+    // 4.2. Set outputs memory
     for (int i = 0; i < n_output; ++i) {
         // 4.2.1 Create output tensor memory, output data type is int8, post_process need int8 data.
         output_mems[i] = rknn_create_mem(ctx, output_attrs[i].n_elems * sizeof(unsigned char));
         memset(output_mems[i]->virt_addr, 0, output_attrs[i].n_elems * sizeof(unsigned char));
         // 4.2.2 Update input attrs
         output_attrs[i].type = RKNN_TENSOR_INT8;
-        // 4.1.3 Set output buffer
+        // 4.2.3 Set output buffer
         rknn_set_io_mem(ctx, output_mems[i], &(output_attrs[i]));
     }
-#else
-    void *in_data = malloc(m_in_width * m_in_height * m_in_channel);
-    memset(in_data, 0, m_in_width * m_in_height * m_in_channel);
-    g_rga_dst = wrapbuffer_virtualaddr(in_data, m_in_width, m_in_height, RK_FORMAT_RGB_888);
-#endif
 
     created = true;
 
@@ -207,8 +195,59 @@ int create(int im_height, int im_width, int im_channel, char *model_path)
     return 0;
 }
 
+
+long create_npu_mem(int img_format) 
+{
+    img_npu_buffer *p_ret_buf = (img_npu_buffer *) malloc(sizeof(img_npu_buffer));
+    p_ret_buf->in_attrs = input_attrs[0];
+    const auto sz_buf = input_attrs[0].size_with_stride;
+    if (ctx != 0) {
+        p_ret_buf->p_npu_buf = rknn_create_mem(ctx, sz_buf);
+        LOGI("new created npu memory fd: %d", p_ret_buf->p_npu_buf->fd);
+        p_ret_buf->rgb_handle = importbuffer_fd(p_ret_buf->p_npu_buf->fd, sz_buf);
+        if (p_ret_buf->rgb_handle != 0) {
+            p_ret_buf->rga_buf = wrapbuffer_handle(p_ret_buf->rgb_handle, m_in_width, m_in_height, img_format);  
+            LOGI("RGA buffer handle: %d", p_ret_buf->rgb_handle);
+        }
+        else {
+            LOGE("Import rga buffer failed");
+            free(p_ret_buf);
+            return 0;
+        }
+    }
+    else {
+        LOGE("got invalid context from NPU in create_npu_mem");
+        free(p_ret_buf);
+        return 0;
+    }
+
+    return (long)p_ret_buf; 
+}
+
+
+void release_npu_mem(long npu_buf_handle) 
+{
+    auto p_img_npu_buf = reinterpret_cast<img_npu_buffer*>(npu_buf_handle); 
+    if (p_img_npu_buf != nullptr) {
+        if (p_img_npu_buf->rgb_handle) 
+            releasebuffer_handle(p_img_npu_buf->rgb_handle);
+        else 
+            LOGE("invalid mem addr when releasing rga buffer handle");
+
+        if (p_img_npu_buf->p_npu_buf) 
+            rknn_destroy_mem(ctx, p_img_npu_buf->p_npu_buf);
+        else 
+            LOGE("invalid mem addr when releasing rknn tensor mem");
+    }
+    else {
+        LOGE("Having invalid mem addr when releasing NPU buffer");
+    }
+    free(p_img_npu_buf);
+}
+
+
 void destroy() {
-//    LOGI("rknn_destroy!");
+    LOGI("release related rknn res");
     // release io_mem resource
     for (int i = 0; i < n_input; ++i) {
         rknn_destroy_mem(ctx, input_mems[i]);
@@ -219,7 +258,8 @@ void destroy() {
     rknn_destroy(ctx);
 }
 
-bool run_yolo(char *inDataRaw, char *y0, char *y1, char *y2)
+
+bool run_yolo(long npu_buf_handle, int camera_width, int camera_height, char *y0, char *y1, char *y2)
 {
     int ret;
     bool status = false;
@@ -230,26 +270,14 @@ bool run_yolo(char *inDataRaw, char *y0, char *y1, char *y2)
 
 #ifdef EVAL_TIME
     struct timeval start_time, stop_time;
-
-    gettimeofday(&start_time, NULL);
 #endif
-    g_rga_src = wrapbuffer_virtualaddr((void *)inDataRaw, img_width, img_height,
-                                       RK_FORMAT_RGBA_8888);
 
-    // convert color format and resize. RGA8888 -> RGB888
-    ret = imresize(g_rga_src, g_rga_dst);
-    if (IM_STATUS_SUCCESS != ret) {
-        LOGE("run_yolo: resize image with rga failed: %s\n", imStrError((IM_STATUS)ret));
-        return false;
-    }
-#ifdef EVAL_TIME
-    gettimeofday(&stop_time, NULL);
-    LOGI("imresize use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
-#endif
+    auto p_img_npu_buf = reinterpret_cast<img_npu_buffer*>(npu_buf_handle); 
+    ret = rknn_set_io_mem(ctx, p_img_npu_buf->p_npu_buf, &p_img_npu_buf->in_attrs);
 
 #ifdef DEBUG_DUMP
     // save resized image
-    if (g_inf_count == 5) {
+    if (g_inf_count == 9) {
         char out_img_name[1024];
         memset(out_img_name, 0, sizeof(out_img_name));
         sprintf(out_img_name, "/data/user/0/com.rockchip.gpadc.yolodemo/cache/resized_img_%d.rgb", g_inf_count);
@@ -258,31 +286,18 @@ bool run_yolo(char *inDataRaw, char *y0, char *y1, char *y2)
 //        fwrite(input_mems[0]->virt_addr, 1, input_attrs[0].n_elems * sizeof(unsigned char), fp);
 //        fflush(fp);
         for (int i = 0; i < input_attrs[0].n_elems; ++i) {
-            fprintf(fp, "%d\n", *((uint8_t *)(g_rga_dst.vir_addr) + i));
+            fprintf(fp, "%d\n", *((uint8_t *)(p_img_npu_buf->p_npu_buf->virt_addr) + i));
         }
         fclose(fp);
     }
-
 #endif
 
-#if ZERO_COPY
-#else
-    rknn_input inputs[1];
-    inputs[0].index = 0;
-    inputs[0].type = RKNN_TENSOR_UINT8;
-    inputs[0].size = m_in_width * m_in_height * m_in_channel;
-    inputs[0].fmt = RKNN_TENSOR_NHWC;
-    inputs[0].pass_through = 0;
-    inputs[0].buf = g_rga_dst.vir_addr;
-#ifdef EVAL_TIME
-    gettimeofday(&start_time, NULL);
-#endif
-    rknn_inputs_set(ctx, 1, inputs);
-#ifdef EVAL_TIME
-    gettimeofday(&stop_time, NULL);
-    LOGI("rknn_inputs_set use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
-#endif
-#endif
+    img_width = camera_width;    // the width of the actual input image
+    img_height = camera_height;   // the height of the actual input image
+
+    // set scale_w, scale_h for post process
+    scale_w = (float)m_in_width / img_width;
+    scale_h = (float)m_in_height / img_height;
 
 #ifdef EVAL_TIME
     gettimeofday(&start_time, NULL);
@@ -300,22 +315,9 @@ bool run_yolo(char *inDataRaw, char *y0, char *y1, char *y2)
     gettimeofday(&start_time, NULL);
 #endif
 
-#if ZERO_COPY
     memcpy(y0, output_mems[0]->virt_addr, output_attrs[0].n_elems * sizeof(char));
     memcpy(y1, output_mems[1]->virt_addr, output_attrs[1].n_elems * sizeof(char));
     memcpy(y2, output_mems[2]->virt_addr, output_attrs[2].n_elems * sizeof(char));
-#else
-    rknn_output outputs[3];
-    memset(outputs, 0, sizeof(outputs));
-    for (int i = 0; i < 3; ++i) {
-        outputs[i].want_float = 0;
-    }
-    rknn_outputs_get(ctx, 3, outputs, NULL);
-    memcpy(y0, outputs[0].buf, output_attrs[0].n_elems * sizeof(char));
-    memcpy(y1, outputs[1].buf, output_attrs[1].n_elems * sizeof(char));
-    memcpy(y2, outputs[2].buf, output_attrs[2].n_elems * sizeof(char));
-    rknn_outputs_release(ctx, 3, outputs);
-#endif
 
 #ifdef EVAL_TIME
     gettimeofday(&stop_time, NULL);
@@ -330,16 +332,12 @@ bool run_yolo(char *inDataRaw, char *y0, char *y1, char *y2)
             sprintf(out_path, "/data/user/0/com.rockchip.gpadc.yolodemo/cache/out_%d.tensor", i);
             FILE *fp = fopen(out_path, "w");
             for (int j = 0; j < output_attrs[i].n_elems; ++j) {
-#if ZERO_COPY
                 fprintf(fp, "%d\n", *((int8_t *)(output_mems[i]->virt_addr) + i));
-#else
-                fprintf(fp, "%d\n", *((int8_t *)(outputs[i].buf) + i));
-#endif
             }
             fclose(fp);
         }
     }
-    if (g_inf_count < 10) {
+    if (g_inf_count < 100) {
         g_inf_count++;
     }
 #endif
@@ -350,6 +348,7 @@ bool run_yolo(char *inDataRaw, char *y0, char *y1, char *y2)
 
     return status;
 }
+
 
 int yolo_post_process(char *grid0_buf, char *grid1_buf, char *grid2_buf,
                       int *ids, float *scores, float *boxes) {
@@ -391,7 +390,7 @@ int yolo_post_process(char *grid0_buf, char *grid1_buf, char *grid2_buf,
                  detect_result_group.results[i].box.bottom,
                  detect_result_group.results->class_id)
         }
-        if (g_post_count < 10) {
+        if (g_post_count < 100) {
             g_post_count++;
         }
 #endif
@@ -400,32 +399,76 @@ int yolo_post_process(char *grid0_buf, char *grid1_buf, char *grid2_buf,
     return count;
 }
 
-int colorConvertAndFlip(void *src, int srcFmt, void *dst,  int dstFmt, int width, int height, int flip) {
-    int ret;
-    
-    rga_buffer_t rga_src = wrapbuffer_virtualaddr((void *)src, width, height, srcFmt);
-    rga_buffer_t rga_dst = wrapbuffer_virtualaddr((void *)dst, width, height, dstFmt);
 
-    if (DO_NOT_FLIP == flip)
-    {
-        // convert color format
-        ret = imcvtcolor(rga_src, rga_dst, rga_src.format, rga_dst.format);
-    } else {
-        // convert color format and flip.
-        ret = imflip(rga_src, rga_dst, flip);
+// convert color format and resize. NV12 -> RGB888
+int colorConvertAndFlip(void *src, int srcFmt, long npu_buf_handle, int dstFmt, int width, int height, int flip) {
+    int ret;
+
+    auto p_dst_buf = reinterpret_cast<img_npu_buffer*>(npu_buf_handle); 
+
+#ifdef DEBUG_DUMP
+    LOGI("colorConvertAndFlip: rga buffer handle, %d", p_dst_buf->rgb_handle);
+    if (g_inf_count % 5 == 0) {
+        std::string dump_file = "/data/user/0/com.rockchip.gpadc.yolodemo/cache/rga_in_" + std::to_string(g_inf_count) + ".bin";
+        dump_bin_to_file(src, dump_file.c_str(), width*height*4*sizeof(char));
     }
+#endif
+    LOGI("in src width: %d, height: %d with format: %d", width, height, srcFmt);
+
+    // using import 
+    rga_buffer_handle_t rga_src_handle = importbuffer_virtualaddr((void *)src, width*height*4*sizeof(char));
+    rga_buffer_t rga_src = wrapbuffer_handle(rga_src_handle, width, height, srcFmt);
+
+    if (DO_NOT_FLIP == flip) {
+#ifdef EVAL_TIME
+        struct timeval start_time, stop_time;
+        gettimeofday(&start_time, NULL);
+#endif
+        LOGI("processing imcvtcolor");
+        // convert color format and resize
+        ret = imcvtcolor(rga_src, p_dst_buf->rga_buf, rga_src.format, p_dst_buf->rga_buf.format);
+        if (IM_STATUS_SUCCESS != ret) {
+            LOGE("colorConvertAndFlip: cvtcolor image with rga failed: %s\n", imStrError((IM_STATUS)ret));
+            return ret;
+        }
+
+#ifdef EVAL_TIME
+        gettimeofday(&stop_time, NULL);
+        LOGI("imcvtcolor use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
+#endif 
+    } else {
+#ifdef EVAL_TIME
+        struct timeval start_time, stop_time;
+        gettimeofday(&start_time, NULL);
+#endif
+        LOGI("processing imflip");
+        // convert color format, flip and resize
+        ret = imflip(rga_src, p_dst_buf->rga_buf, flip);
+        if (IM_STATUS_SUCCESS != ret) {
+            LOGE("colorConvertAndFlip: imflip with rga failed: %s\n", imStrError((IM_STATUS)ret));
+            return ret;
+        }
+#ifdef EVAL_TIME
+        gettimeofday(&stop_time, NULL);
+        LOGI("imflip use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
+#endif
+    }
+
+#ifdef DEBUG_DUMP
+    if (g_inf_count % 5 == 0) {
+        std::string dump_file = "/data/user/0/com.rockchip.gpadc.yolodemo/cache/rga_out_" + std::to_string(g_inf_count) + ".bin";
+        dump_bin_to_file(p_dst_buf->p_npu_buf->virt_addr, dump_file.c_str(), 640*640*3*sizeof(uint8_t));
+    }
+#endif
 
     if (IM_STATUS_SUCCESS != ret) {
         LOGE("colorConvertAndFlip failed. Ret: %s\n", imStrError((IM_STATUS)ret));
     }
 
+    if (rga_src_handle) {
+        releasebuffer_handle(rga_src_handle);
+    }
+
     return ret;
 }
 
-void rknn_app_destory() {
-    LOGI("rknn app destroy.\n");
-    if (g_rga_dst.vir_addr) {
-        free(g_rga_dst.vir_addr);
-    }
-    rknn_destroy(ctx);
-}

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.2.0
+
+- Support installation via pip
+- Optimize transformer model performance
+- Support Python 3.12
+- Operator optimization, such as softmax, hardmax, MatMul, etc.
+
 ## v2.1.0
 
 - Support RV1103B (Beta)

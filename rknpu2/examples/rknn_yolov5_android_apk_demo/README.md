@@ -6,6 +6,7 @@
 # Pre-requisite
 
  - Using the andorid studio 2021 1.2.1 or 1.3.1, higher version
+ - **RGA requires driver version higher than 1.2.4 and librga.so higher than 1.4** 
 
  - Yolov5s.rknn is required, which can be converted from yolov5s.onnx, which SiLU activation layer was replace with ReLU. The detail should refer to this link: https://github.com/airockchip/rknn_model_zoo/blob/main/examples/yolov5/README.md 
 

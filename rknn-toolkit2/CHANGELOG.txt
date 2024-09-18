@@ -1,3 +1,47 @@
+2024-9-2:
+版本: v2.2.0:
+更新内容:
+1. 增加对bool输出的连扳推理支持
+2. 增加rv1106b支持
+3. whl包标准化(manylinux)
+4. 优化pad和mul相关的消融规则
+5. 优化TP的图级别消除
+6. 优化QAT模型支持
+7. 优化Gather性能
+8. 提高连板稳定性
+9. 更新动态shape功能
+10. 修复大模型混合量化报错
+11. 修复Caffe的inplace layer报错
+12. 完善带broadcast的Less/Greater/LessOrEqual/GreaterOrEqual/And/Or/Max/Min/Mean/Sum算子情况支持
+13. 增加RK3576 exSoftmaxMask(softmax+where)算子支持
+14. 完善Softmax算子支持
+15. 增加RK3562、RK3588、RK1106 Hardmax支持
+16. 完善RK3576 ConvDepthwise + Eltwise OP融合
+17. 增加RK3576 FP16类型Conv稀疏化推理
+18. 修复多线程运行失败问题
+19. 修复RKLLM模型和RKNN模型混合运行失败问题
+
+2024-8-22
+版本: v2.1.1b1:
+更新内容:
+1. 增加Transpose NPU算子支持，例如放宽perm=[1,2,0,3]规格NPU算子限制。
+2. 增强mode=bilinear Resize CPU算子浮点类型性能。
+3. 增加pixel-norm算子CPU实现。
+4. 增加python3.12的支持
+5. 增加动态权重conv的部分支持
+6. 增加PixelNorm/Sum支持
+7. 优化split&elements子图结构性能
+8. 优化exNorm前后Reshape开销
+9. 完善 einsum 支持
+10. 修复超2G模型报错
+
+2024-8-14
+版本: v2.1.1b0:
+更新内容:
+1. rk3576增加softmaxmask NPU算子支持。
+2. 增加lpNormalization非4维支持
+3. 优化Pool/GatherElements性能
+
 2024-8-1
 版本: v2.1.0:
 更新内容:

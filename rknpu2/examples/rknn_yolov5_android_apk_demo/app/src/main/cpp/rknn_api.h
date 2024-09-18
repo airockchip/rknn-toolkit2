@@ -59,6 +59,42 @@ extern "C" {
 /* dummy init flag: could only get total_weight_size and total_internal_size by rknn_query*/
 #define RKNN_FLAG_COLLECT_MODEL_INFO_ONLY       0x00000100
 
+/* allocate internal memory in outside */
+#define RKNN_FLAG_INTERNAL_ALLOC_OUTSIDE        0x00000200
+
+/* set GPU as the preferred execution backend When the operator is not supported by the NPU */
+#define RKNN_FLAG_EXECUTE_FALLBACK_PRIOR_DEVICE_GPU 0x00000400
+
+/* enable allocate sram type buffers */
+#define RKNN_FLAG_ENABLE_SRAM                   0x00000800
+
+/* sram type buffers are shared among different contexts */
+#define RKNN_FLAG_SHARE_SRAM                    0x00001000
+
+/* default nice -19, this flag can disable default priority */
+#define RKNN_FLAG_DISABLE_PROC_HIGH_PRIORITY    0x00002000
+
+/* don't flush input buffer cache, the user must ensure that the input tensor has flushed the cache before calling rknn_run. 
+!!! Don't use this flags when you call rknn_inputs_set() to set input data. */
+#define RKNN_FLAG_DISABLE_FLUSH_INPUT_MEM_CACHE    0x00004000
+
+/* Don't invalid output buffer cache. 
+   Users cannot directly access output_mem->virt_addr, 
+   which will cause cache consistency problems. 
+   If you want to use output_mem->virt_addr, 
+   you must use rknn_mem_sync (ctx, mem, RKNN_MEMORY_SYNC_FROM_DEVICE) to flush the cache. 
+   This flags is generally used when the output data of the NPU is not accessed by the CPU, 
+   but is accessed by the GPU or RGA to reduce the time required to flush the cache. 
+   !!! Don't use this flags when you call rknn_outputs_get() to get output data.*/
+#define RKNN_FLAG_DISABLE_FLUSH_OUTPUT_MEM_CACHE   0x00008000
+
+/* This flag is used when the model data buffer is allocated by NPU, and can be accessed by NPU directly. */
+#define RKNN_FLAG_MODEL_BUFFER_ZERO_COPY           0x00010000
+
+/* This flag is a memory allocation flag, which is used in rknn_create_mem2() when no context is available. */
+#define RKNN_MEM_FLAG_ALLOC_NO_CONTEXT             0x00020000
+
+
 /*
     Error code returned by the RKNN API.
 */
@@ -125,6 +161,10 @@ typedef enum _rknn_query_cmd {
     RKNN_QUERY_CURRENT_INPUT_ATTR = 14,                     /* query the current shape of rknn input tensor, only valid for dynamic rknn model*/
     RKNN_QUERY_CURRENT_OUTPUT_ATTR = 15,                    /* query the current shape of rknn output tensor, only valid for dynamic rknn model*/
 
+    RKNN_QUERY_CURRENT_NATIVE_INPUT_ATTR = 16,              /* query the current native shape of rknn input tensor, only valid for dynamic rknn model*/
+    RKNN_QUERY_CURRENT_NATIVE_OUTPUT_ATTR = 17,             /* query the current native shape of rknn output tensor, only valid for dynamic rknn model*/
+
+
     RKNN_QUERY_CMD_MAX
 } rknn_query_cmd;
 
@@ -142,6 +182,7 @@ typedef enum _rknn_tensor_type {
     RKNN_TENSOR_UINT32,                                 /* data type is uint32. */
     RKNN_TENSOR_INT64,                                  /* data type is int64. */
     RKNN_TENSOR_BOOL,
+    RKNN_TENSOR_INT4,
 
     RKNN_TENSOR_TYPE_MAX
 } rknn_tensor_type;
@@ -159,6 +200,7 @@ inline static const char* get_type_string(rknn_tensor_type type)
     case RKNN_TENSOR_UINT32: return "UINT32";
     case RKNN_TENSOR_INT64: return "INT64";
     case RKNN_TENSOR_BOOL: return "BOOL";
+    case RKNN_TENSOR_INT4: return "INT4";
     default: return "UNKNOW";
     }
 }
@@ -204,8 +246,9 @@ typedef enum _rknn_core_mask {
     RKNN_NPU_CORE_0 = 1,                                          /* run on NPU core 0. */
     RKNN_NPU_CORE_1 = 2,                                          /* run on NPU core 1. */
     RKNN_NPU_CORE_2 = 4,                                          /* run on NPU core 2. */
-    RKNN_NPU_CORE_0_1 = RKNN_NPU_CORE_0 | RKNN_NPU_CORE_1,        /* run on NPU core 1 and core 2. */
-    RKNN_NPU_CORE_0_1_2 = RKNN_NPU_CORE_0_1 | RKNN_NPU_CORE_2,    /* run on NPU core 1 and core 2 and core 3. */
+    RKNN_NPU_CORE_0_1 = RKNN_NPU_CORE_0 | RKNN_NPU_CORE_1,        /* run on NPU core 0 and core 1. */
+    RKNN_NPU_CORE_0_1_2 = RKNN_NPU_CORE_0_1 | RKNN_NPU_CORE_2,    /* run on NPU core 0 and core 1 and core 2. */
+    RKNN_NPU_CORE_ALL = 0xffff,                                   /* auto choice, run on NPU cores depending on platform */
 
     RKNN_NPU_CORE_UNDEFINED,
 } rknn_core_mask;
@@ -331,6 +374,25 @@ typedef enum _rknn_tensor_mem_flags {
 } rknn_tensor_mem_flags;
 
 /*
+   The mode to sync cacheable rknn memory.
+*/
+typedef enum _rknn_mem_alloc_flags {
+    RKNN_FLAG_MEMORY_FLAGS_DEFAULT = 0 << 0, /* Same with RKNN_FLAG_MEMORY_CACHEABLE */
+    RKNN_FLAG_MEMORY_CACHEABLE  = 1 << 0, /* Create Cacheable memory. */
+    RKNN_FLAG_MEMORY_NON_CACHEABLE = 1 << 1, /* Create NON-Cacheable memory. */
+} rknn_mem_alloc_flags;
+
+/*
+   The mode to sync cacheable rknn memory.
+*/
+typedef enum _rknn_mem_sync_mode {
+    RKNN_MEMORY_SYNC_TO_DEVICE = 0x1, /* the mode used for consistency of device access after CPU accesses data. */
+    RKNN_MEMORY_SYNC_FROM_DEVICE = 0x2, /* the mode used for consistency of CPU access after device accesses data. */
+    RKNN_MEMORY_SYNC_BIDIRECTIONAL = RKNN_MEMORY_SYNC_TO_DEVICE | RKNN_MEMORY_SYNC_FROM_DEVICE, /* the mode used for consistency of data access
+                                                                                                         between device and CPU in both directions. */
+} rknn_mem_sync_mode;
+
+/*
     the memory information of tensor.
 */
 typedef struct _rknn_tensor_memory {
@@ -382,9 +444,11 @@ typedef struct _rknn_output {
 */
 typedef struct _rknn_init_extend {
     rknn_context ctx;                                    /* rknn context */
-    int32_t      real_model_offset;                      /* real rknn model file offset, only valid when init context with rknn file path */
-    uint32_t     real_model_size;                        /* real rknn model file size, only valid when init context with rknn file path */
-    uint8_t      reserved[120];                          /* reserved */
+    int32_t      real_model_offset;                      /* real rknn model file offset, only valid when init context with rknn file path and zero-copy model model */
+    uint32_t     real_model_size;                        /* real rknn model file size, only valid when init context with rknn file path and zero-copy model model */
+    int32_t      model_buffer_fd;                        /* the fd of model buffer. */
+    uint32_t     model_buffer_flags;                     /* the flags of model_buffer */
+    uint8_t      reserved[112];                          /* reserved */
 } rknn_init_extend;
 
 /*
@@ -498,6 +562,8 @@ int rknn_set_batch_core_num(rknn_context context, int core_num);
     RKNN_NPU_CORE_2: core 2 mode
     RKNN_NPU_CORE_0_1: combine core 0/1 mode
     RKNN_NPU_CORE_0_1_2: combine core 0/1/2 mode
+    RKNN_NPU_CORE_ALL: auto mode, select multiple npu cores to run depending on platform 
+
 
     input:
         rknn_context context        the handle of context.
@@ -625,6 +691,18 @@ rknn_tensor_mem* rknn_create_mem_from_mb_blk(rknn_context ctx, void *mb_blk, int
 */
 rknn_tensor_mem* rknn_create_mem(rknn_context ctx, uint32_t size);
 
+/*  rknn_create_mem2 (memory allocated inside)
+
+    create tensor memory.
+
+    input:
+        rknn_context ctx            the handle of context.
+        uint64_t size               the size of tensor buffer.
+        uint64_t alloc_flags              control the memory is cacheable
+    return:
+        rknn_tensor_mem             the pointer of tensor memory information.
+*/
+rknn_tensor_mem* rknn_create_mem2(rknn_context ctx, uint64_t size, uint64_t alloc_flags);
 
 /*  rknn_destroy_mem (support allocate inside and outside)
 
@@ -678,7 +756,7 @@ int rknn_set_internal_mem(rknn_context ctx, rknn_tensor_mem *mem);
 */
 int rknn_set_io_mem(rknn_context ctx, rknn_tensor_mem *mem, rknn_tensor_attr *attr);
 
-/*  rknn_set_input_shape
+/*  rknn_set_input_shape(deprecated)
 
     set the input tensor shape (only valid for dynamic shape rknn model).
 
@@ -689,6 +767,32 @@ int rknn_set_io_mem(rknn_context ctx, rknn_tensor_mem *mem, rknn_tensor_attr *at
         int                         error code.
 */
 int rknn_set_input_shape(rknn_context ctx, rknn_tensor_attr* attr);
+
+/*  rknn_set_input_shapes
+
+    set all the input tensor shapes. graph will run under current set of input shapes after rknn_set_input_shapes.(only valid for dynamic shape rknn model).
+
+    input:
+        rknn_context ctx            the handle of context.
+        uint32_t n_inputs           the number of inputs.
+        rknn_tensor_attr attr[]     the attribute array of all input tensors.
+    return:
+        int                         error code.
+*/
+int rknn_set_input_shapes(rknn_context ctx, uint32_t n_inputs, rknn_tensor_attr attr[]);
+
+/*  rknn_mem_sync
+
+    sync cacheable rknn memory when both cpu and device access data.
+
+    input:
+        rknn_context context        the handle of context.
+        rknn_tensor_mem *mem        the pointer of tensor memory information.
+        rknn_mem_sync_mode mode     the mode of sync cache.
+    return:
+        int                         error code.
+*/
+int rknn_mem_sync(rknn_context context, rknn_tensor_mem* mem, rknn_mem_sync_mode mode);
 
 #ifdef __cplusplus
 } //extern "C"

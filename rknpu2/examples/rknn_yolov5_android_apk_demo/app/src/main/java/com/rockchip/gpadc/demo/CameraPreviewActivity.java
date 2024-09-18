@@ -41,6 +41,7 @@ import static com.rockchip.gpadc.demo.rga.HALDefine.CAMERA_PREVIEW_HEIGHT;
 import static com.rockchip.gpadc.demo.rga.HALDefine.CAMERA_PREVIEW_WIDTH;
 import static com.rockchip.gpadc.demo.rga.HALDefine.IM_HAL_TRANSFORM_FLIP_H;
 import static com.rockchip.gpadc.demo.rga.HALDefine.RK_FORMAT_RGBA_8888;
+import static com.rockchip.gpadc.demo.rga.HALDefine.RK_FORMAT_RGB_888;
 import static com.rockchip.gpadc.demo.rga.HALDefine.RK_FORMAT_YCrCb_420_SP;
 import static com.rockchip.gpadc.demo.yolo.PostProcess.INPUT_CHANNEL;
 import static java.lang.Thread.sleep;
@@ -57,6 +58,7 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
     private SurfaceView mSurfaceView = null;
     public SurfaceTexture mSurfaceTexture = null;
     private SurfaceHolder mSurfaceHolder = null;
+
     public int flip = -1;    // for CAMERA_FACING_BACK(camera comes with RK3588 using this mode),
                              // we do not need flip, using -1, or we need using
                              // IM_HAL_TRANSFORM_FLIP_H
@@ -75,6 +77,7 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
     private int mWidth;    //surface width
     private int mHeight;    //surface height
     private volatile boolean mStopInference = false;
+    private boolean mModelInit = false;
 
     //draw result
     private TextView mFpsNum1;
@@ -130,6 +133,18 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
         }
 
         mInferenceWrapper = new InferenceWrapper();
+
+        String paramPath = fileDirPath + "/" + mModelName;
+
+        try {
+            if (!mModelInit) {
+                mInferenceWrapper.initModel(CAMERA_PREVIEW_HEIGHT, CAMERA_PREVIEW_WIDTH, INPUT_CHANNEL, paramPath);
+                mModelInit = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
 
     }
 
@@ -190,8 +205,8 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
         if (imageBuffer != null) {
             // RK_FORMAT_YCrCb_420_SP -> RK_FORMAT_RGBA_8888
             // flip for CAMERA_FACING_FRONT
-            RGA.colorConvertAndFlip(data, RK_FORMAT_YCrCb_420_SP,
-                    imageBuffer.mImage, RK_FORMAT_RGBA_8888,
+            RGA.colorConvertAndFlip(data, RK_FORMAT_YCrCb_420_SP, imageBuffer.mImage_handle,  
+                    RK_FORMAT_RGB_888,
                     CAMERA_PREVIEW_WIDTH, CAMERA_PREVIEW_HEIGHT, this.flip);
 
             mImageBufferQueue.postBuffer(imageBuffer);
@@ -380,16 +395,6 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
 
             updateMainUI(1, 0);
 
-            String paramPath = fileDirPath + "/" + mModelName;
-
-            try {
-                mInferenceWrapper.initModel(CAMERA_PREVIEW_HEIGHT, CAMERA_PREVIEW_WIDTH, INPUT_CHANNEL, paramPath);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-
-
             while (!mStopInference) {
                 ImageBufferQueue.ImageBuffer buffer = mImageBufferQueue.getReadyBuffer();
 
@@ -403,7 +408,7 @@ public class CameraPreviewActivity extends Activity implements Camera.PreviewCal
                     continue;
                 }
 
-                InferenceResult.OutputBuffer outputs = mInferenceWrapper.run(buffer.mImage);
+                InferenceResult.OutputBuffer outputs = mInferenceWrapper.run(buffer.mImage_handle, CAMERA_PREVIEW_WIDTH, CAMERA_PREVIEW_HEIGHT);
 
                 mInferenceResult.setResult(outputs);
 

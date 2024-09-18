@@ -1,6 +1,7 @@
 package com.rockchip.gpadc.demo;
 
 
+import static com.rockchip.gpadc.demo.rga.HALDefine.RK_FORMAT_RGB_888;
 
 
 /**
@@ -17,6 +18,11 @@ public class ImageBufferQueue {
     private int mQueueBufferSize;
     private int mCurrentFreeBufferIndex;
     private int mCurrentUsingBufferIndex;
+
+    static {
+        System.loadLibrary("rknn4j");
+    }
+
 
     public ImageBufferQueue(int bufferSize, int width, int height) {
         mCurrentFreeBufferIndex = -1;
@@ -98,26 +104,30 @@ public class ImageBufferQueue {
         static public final int STATUS_READY = 1;
         static public final int STATUS_USING = 2;
 
-
         public int mStatus;
         public int mWidth;
         public int mHeight;
         public int mBufferSize; //nv21
-        public byte[] mImage;
-
+        // public byte[] mImage;
+        public long mImage_handle;
 
         public ImageBuffer(int width, int height) {
             mStatus = STATUS_INVAILD;
             mWidth = width;
             mHeight = height;
             mBufferSize = mWidth * mHeight * 4;
-            mImage = new byte[mBufferSize];
-
+            //to do: add interface creating from NPU
+            // mImage = new byte[mBufferSize];
+            //for image rgb input with model input width and height
+            mImage_handle = create_npu_img_buffer(RK_FORMAT_RGB_888); 
         }
 
         public void finalize() {
-
+            //to do: add destroy mem here
+            release_npu_img_buffer(mImage_handle);
         }
-
-    }
+       
+    } 
+    private native long create_npu_img_buffer(int img_format);
+    private native void release_npu_img_buffer(long npu_buf_handle);
 }
