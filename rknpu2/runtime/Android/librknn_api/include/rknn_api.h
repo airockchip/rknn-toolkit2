@@ -183,6 +183,7 @@ typedef enum _rknn_tensor_type {
     RKNN_TENSOR_INT64,                                  /* data type is int64. */
     RKNN_TENSOR_BOOL,
     RKNN_TENSOR_INT4,
+    RKNN_TENSOR_BFLOAT16,
 
     RKNN_TENSOR_TYPE_MAX
 } rknn_tensor_type;
@@ -201,6 +202,7 @@ inline static const char* get_type_string(rknn_tensor_type type)
     case RKNN_TENSOR_INT64: return "INT64";
     case RKNN_TENSOR_BOOL: return "BOOL";
     case RKNN_TENSOR_INT4: return "INT4";
+    case RKNN_TENSOR_BFLOAT16: return "BF16";
     default: return "UNKNOW";
     }
 }

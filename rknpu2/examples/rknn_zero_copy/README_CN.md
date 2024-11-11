@@ -1,0 +1,18 @@
+# 零拷贝示例
+
+本项目展示了如何在不同平台上实现零拷贝技术，提升模型推理的效率。具体示例代码位于examples/rknn_api_demo和examples/RV1106_RV1103目录下。
+
+## 非RV1103和RV1106平台的零拷贝示例
+
+以下示例展示了在非RV1103和RV1106平台系列上使用零拷贝技术的多种方法，代码见examples/rknn_api_demo ：
+
+1. rknn_create_mem_demo：本示例展示了如何使用rknn_create_mem接口创建输入/输出的零拷贝操作。
+2. rknn_create_mem_with_rga_demo：本示例展示了如何使用rknn_create_mem接口创建输入/输出的零拷贝操作，并结合RGA进行缩放处理。
+3. rknn_set_internal_mem_from_fd_demo：本示例使用MMZ库分配模型的输入、输出、权重及内部内存，并通过rknn_create_mem_from_fd接口实现零拷贝操作。
+4. rknn_with_mmz_demo：本示例使用MMZ库分配模型的输入/输出内存，并通过rknn_create_mem_from_phys接口实现零拷贝操作。
+
+## RV1103和RV1106平台的零拷贝示例
+
+在RV1103系列和RV1106系列平台系列上，本项目提供了以下零拷贝示例，代码见examples/RV1106_RV1103：
+1. rknn_mobilenet_demo：本示例展示了在RV1103系列和RV1106系列平台上使用零拷贝技术进行MobileNet模型推理的过程，其中main_nhwc.c仅支持RV1103和RV1106。
+2. rknn_yolov5_demo：本示例展示了在RV1103和RV1106平台上使用零拷贝技术进行YOLOv5模型推理的过程。

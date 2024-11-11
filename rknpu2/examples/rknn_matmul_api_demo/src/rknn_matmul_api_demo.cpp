@@ -578,12 +578,8 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  ret = rknn_matmul_set_core_mask(ctx, (rknn_core_mask)core_mask);
-  if (ret < 0)
-  {
-    fprintf(stderr, "rknn_matmul_set_core_mask fail! ret=%d\n", ret);
-    return -1;
-  }
+  // This interface is invalid on single-core platforms and will return -1. Please choose whether to call based on the actual platform
+  rknn_matmul_set_core_mask(ctx, (rknn_core_mask)core_mask);
 
   if (matmul_type == RKNN_INT8_MM_INT8_TO_INT8)
   {

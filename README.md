@@ -50,7 +50,7 @@ Note:
   - Python 3.10
   - Python 3.11
   - Python 3.12
-- Latest version:v2.2.0
+- Latest version:v2.3.0
 
 
 
@@ -64,11 +64,16 @@ https://github.com/airockchip/rknn-llm
 
 # CHANGELOG
 
-## v2.2.0
-- Support installation via pip
-- Optimize transformer model performance
-- Support Python 3.12
-- Operator optimization, such as softmax, hardmax, MatMul, etc.
+## v2.3.0
+- RKNN-Toolkit2 support ARM64 architecture
+
+- RKNN-Toolkit-Lite2 support installation via pip
+
+- Add support for W4A16 symmetric quantization (RK3576)
+
+- Operator optimization, such as LayerNorm, LSTM, Transpose, MatMul, etc.
+
+    
 
  for older version, please refer [CHANGELOG](CHANGELOG.md)
 

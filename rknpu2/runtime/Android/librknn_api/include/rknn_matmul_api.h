@@ -58,6 +58,7 @@ typedef enum _rknn_matmul_type
   RKNN_INT8_MM_INT8_TO_FLOAT32       = 9,
   RKNN_INT4_MM_INT4_TO_INT16         = 10,
   RKNN_INT8_MM_INT4_TO_INT32         = 11,
+  RKNN_FLOAT16_MM_INT4_TO_BFLOAT16   = 12,
 } rknn_matmul_type;
 
 inline static const char* get_matmul_type_string(rknn_matmul_type type)
@@ -85,6 +86,8 @@ inline static const char* get_matmul_type_string(rknn_matmul_type type)
     return "RKNN_INT8_MM_INT4_TO_INT32";
   case RKNN_INT8_MM_INT8_TO_FLOAT32:
     return "RKNN_INT8_MM_INT8_TO_FLOAT32";
+  case RKNN_FLOAT16_MM_INT4_TO_BFLOAT16:
+    return "RKNN_FLOAT16_MM_INT4_TO_BFLOAT16";
   default:
     return "UNKNOW";
   }

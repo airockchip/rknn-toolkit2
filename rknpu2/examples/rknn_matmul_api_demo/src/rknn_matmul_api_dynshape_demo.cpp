@@ -450,6 +450,7 @@ int main(int argc, char *argv[])
     return -1;
   }
 
+  // This interface is invalid on single-core platforms and will return -1. Please choose whether to call based on the actual platform
   ret = rknn_matmul_set_core_mask(ctx, (rknn_core_mask)core_mask);
 
   printf("support input/output attribute:\n");
