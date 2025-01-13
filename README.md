@@ -39,6 +39,10 @@ Note:
 # Download
 - You can also download all packages, docker image, examples, docs and platform-tools from [RKNPU2_SDK](https://console.zbox.filez.com/l/I00fc3), fetch code: rknn
 - You can get more examples from [rknn mode zoo](https://github.com/airockchip/rknn_model_zoo)
+- You can also download and install the latest version of [rknn-toolkit2](https://pypi.org/project/rknn-toolkit2/) via PyPI by running the following command:
+  ```bash
+  pip install rknn-toolkit2
+  ```
 
 # Notes
 - RKNN-Toolkit2 is not compatible with [RKNN-Toolkit](https://github.com/airockchip/rknn-toolkit)
