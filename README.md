@@ -79,13 +79,15 @@ https://github.com/airockchip/rknn-llm
 
 # Feedback and Community Support
 - [Redmine](https://redmine.rock-chips.com) (**Feedback recommended, Please consult our sales or FAE for the redmine account**)
-- QQ Group Chat: 1025468710 (full, please join group 3)
-- QQ Group Chat2: 547021958 (full, please join group 3)
-- QQ Group Chat3: 469385426
+- QQ Group Chat: 1025468710 (full, please join group 4)
+- QQ Group Chat2: 547021958 (full, please join group 4)
+- QQ Group Chat3: 469385426 (full, please join group 4)
+- QQ Group Chat4: 958083853
 <center class="half">
   <img width="200" height="200"  src="res/QQGroupQRCode.png" title="QQ Group Chat"/>
   <img width="200" height="200"  src="res/QQGroup2QRCode.png" title="QQ Group Chat2"/>
   <img width="200" height="200"  src="res/QQGroup3QRCode.png" title="QQ Group Chat3"/>
+  <img width="200" height="200"  src="res/QQGroup4QRCode.png" title="QQ Group Chat4"/>
 </center>
 
 
