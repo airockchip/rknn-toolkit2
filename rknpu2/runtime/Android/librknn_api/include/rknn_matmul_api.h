@@ -59,6 +59,7 @@ typedef enum _rknn_matmul_type
   RKNN_INT4_MM_INT4_TO_INT16         = 10,
   RKNN_INT8_MM_INT4_TO_INT32         = 11,
   RKNN_FLOAT16_MM_INT4_TO_BFLOAT16   = 12,
+  RKNN_INT8_MM_INT4_TO_FLOAT16       = 15,
 } rknn_matmul_type;
 
 inline static const char* get_matmul_type_string(rknn_matmul_type type)

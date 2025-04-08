@@ -1,4 +1,4 @@
-以下 <TARGET_PLATFORM> 表示RK3566_RK3568、RK3562、RK3576或RK3588。
+以下 <TARGET_PLATFORM> 表示RK3566_RK3568、RK3562、RK3576、RK3588、RV1126B。
 # Aarch64 Linux 示例
 ## 编译
 首先导入GCC_COMPILER，例如`export GCC_COMPILER=~/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu 

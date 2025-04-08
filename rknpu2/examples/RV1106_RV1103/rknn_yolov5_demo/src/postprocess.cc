@@ -337,10 +337,95 @@ static int process_native_nhwc(int8_t *input, int *anchor, int grid_h, int grid_
     return validCount;
 }
 
+//转换原理：NHWC = NC1HWC2.transpose(0,2,3,1,4).reshape(n,h,w,c_)[:,:,:,0:c] , c_是带了一点用于对齐的无效数据需要去除
+//所以元素的位置计算公式为index = pIdx * strideP + hIdx * strideH + wIdx * strideW + offset
+static int8_t ConvertNC1HWC2ToNHWC(const int8_t* src, const int* dim, int hIdx, int wIdx, int cIdx) {
+    int C1 = dim[1]; 
+    int C2 = dim[4]; 
+    int totalHW = dim[2] * dim[3]; 
+    int width = dim[3]; 
+
+    int strideH = width * C2;
+    int strideP = totalHW * C2; 
+    int pIdx = cIdx / C2; 
+    int strideW = C2; 
+    int offset = cIdx % C2; 
+
+    int dataIdx = pIdx * strideP + hIdx * strideH + wIdx * strideW + offset;
+    return src[dataIdx];
+}
+
+
+static int process_native_nc1hwc2(int8_t *input, int *dims, const int *anchor,
+                                  int grid_h, int grid_w, int stride,
+                                  std::vector<float> &boxes, std::vector<float> &boxScores, std::vector<int> &classId,
+                                  float threshold, int32_t zp, float scale) {
+
+    int validCount = 0;
+    int8_t thres_i8 = qnt_f32_to_affine(threshold, zp, scale);
+
+    int anchor_per_branch = 3;
+    int align_c = PROP_BOX_SIZE * anchor_per_branch;
+
+    for (int h = 0; h < grid_h; h++) {
+        for (int w = 0; w < grid_w; w++) {
+            for (int a = 0; a < anchor_per_branch; a++) {
+                int hw_offset = h * grid_w * align_c + w * align_c + a * PROP_BOX_SIZE;
+                int8_t box_confidence = ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 4);
+
+                if (box_confidence >= thres_i8) {
+                    int8_t maxClassProbs = ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 5);
+                    int maxClassId = 0;
+                    for (int k = 1; k < OBJ_CLASS_NUM; ++k) {
+                        int8_t prob = ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 5 + k);
+                        if (prob > maxClassProbs) {
+                            maxClassId = k;
+                            maxClassProbs = prob;
+                        }
+                    }
+
+                    float box_conf_f32 = deqnt_affine_to_f32(box_confidence, zp, scale);
+                    float class_prob_f32 = deqnt_affine_to_f32(maxClassProbs, zp, scale);
+                    float limit_score = box_conf_f32 * class_prob_f32;
+
+                    if (limit_score > threshold) {
+                        float box_x, box_y, box_w, box_h;
+
+                        box_x = deqnt_affine_to_f32(ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 0), zp, scale) * 2.0 - 0.5;
+                        box_y = deqnt_affine_to_f32(ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 1), zp, scale) * 2.0 - 0.5;
+                        box_w = deqnt_affine_to_f32(ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 2), zp, scale) * 2.0;
+                        box_h = deqnt_affine_to_f32(ConvertNC1HWC2ToNHWC(input, dims, h, w, a * PROP_BOX_SIZE + 3), zp, scale) * 2.0;
+                        box_w = box_w * box_w;
+                        box_h = box_h * box_h;
+
+
+                        box_x = (box_x + w) * (float)stride;
+                        box_y = (box_y + h) * (float)stride;
+                        box_w *= (float)anchor[a * 2];
+                        box_h *= (float)anchor[a * 2 + 1];
+
+                        box_x -= (box_w / 2.0);
+                        box_y -= (box_h / 2.0);
+
+                        boxes.push_back(box_x);
+                        boxes.push_back(box_y);
+                        boxes.push_back(box_w);
+                        boxes.push_back(box_h);
+                        boxScores.push_back(limit_score);
+                        classId.push_back(maxClassId);
+                        validCount++;
+                    }
+                }
+            }
+        }
+    }
+    return validCount;
+}
+
 int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h, int model_in_w,
                  float conf_threshold, float nms_threshold, float scale_w, float scale_h,
                  std::vector<int32_t> &qnt_zps, std::vector<float> &qnt_scales,
-                 detect_result_group_t *group)
+                 detect_result_group_t *group, int* dims)
 {
     static int init = -1;
     if (init == -1)
@@ -365,24 +450,40 @@ int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h,
     int grid_h0 = model_in_h / stride0;
     int grid_w0 = model_in_w / stride0;
     int validCount0 = 0;
-    validCount0 = process_native_nhwc(input0, (int *)anchor0, grid_h0, grid_w0, model_in_h, model_in_w,
+
+#if defined(RV1106_RV1103)
+     validCount0 = process_native_nhwc(input0, (int *)anchor0, grid_h0, grid_w0, model_in_h, model_in_w,
                           stride0, filterBoxes, objProbs, classId, conf_threshold, qnt_zps[0], qnt_scales[0]);
+#else // RV1106B_RV1103B
+     validCount0 = process_native_nc1hwc2(input0, dims, (int *)anchor0, grid_h0, grid_w0,
+                          stride0, filterBoxes, objProbs, classId, conf_threshold, qnt_zps[0], qnt_scales[0]);
+#endif
 
     // stride 16
     int stride1 = 16;
     int grid_h1 = model_in_h / stride1;
     int grid_w1 = model_in_w / stride1;
     int validCount1 = 0;
+#if defined(RV1106_RV1103)
     validCount1 = process_native_nhwc(input1, (int *)anchor1, grid_h1, grid_w1, model_in_h, model_in_w,
                           stride1, filterBoxes, objProbs, classId, conf_threshold, qnt_zps[1], qnt_scales[1]);
-
+#else // RV1106B_RV1103B
+    validCount1 = process_native_nc1hwc2(input1, dims + 5, (int *)anchor1, grid_h1, grid_w1, 
+                          stride1, filterBoxes, objProbs, classId, conf_threshold, qnt_zps[1], qnt_scales[1]);
+#endif
+   
     // stride 32
     int stride2 = 32;
     int grid_h2 = model_in_h / stride2;
     int grid_w2 = model_in_w / stride2;
     int validCount2 = 0;
+#if defined(RV1106_RV1103)
     validCount2 = process_native_nhwc(input2, (int *)anchor2, grid_h2, grid_w2, model_in_h, model_in_w,
                           stride2, filterBoxes, objProbs, classId, conf_threshold, qnt_zps[2], qnt_scales[2]);
+#else // RV1106B_RV1103B
+    validCount2 = process_native_nc1hwc2(input2, dims + 10, (int *)anchor2, grid_h2, grid_w2, 
+                          stride2, filterBoxes, objProbs, classId, conf_threshold, qnt_zps[2], qnt_scales[2]);
+#endif
 
     int validCount = validCount0 + validCount1 + validCount2;
     // no object detect

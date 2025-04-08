@@ -62,7 +62,6 @@ def vis_segmentation(image, seg_map):
 
 class ArgMax:
     op_type = "ArgMax" 
-       
 
 
 
@@ -85,7 +84,7 @@ if __name__ == '__main__':
 
     # Load ONNX model
     print('--> Loading model')
-    ret = rknn.load_onnx(model=onnx_model, outputs=['p2o.ArgMax.1'])
+    ret = rknn.load_onnx(model=onnx_model, inputs=['x'], input_size_list=[[1,3,192,192]] )
     if ret != 0:
         print('Load model failed!')
         exit(ret)

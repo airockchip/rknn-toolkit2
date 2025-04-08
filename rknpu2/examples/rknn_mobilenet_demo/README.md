@@ -1,4 +1,5 @@
-The following <TARGET_PLATFORM> represents RK3566_RK3568, RK3562, RK3576 or RK3588.
+The following <TARGET_PLATFORM> represents RK3566_RK3568, RK3562, RK3576, RK3588, RV1126B.
+The following <TARGET_PLATFORM> represents RK3566_RK3568, RK3562, RK3576, RK3588, RV1126B.
 
 # rknn model source description
 The rknn model of each platform comes from the examples/tflite/mobilenet_v1 example of RKNN-Toolkit2.

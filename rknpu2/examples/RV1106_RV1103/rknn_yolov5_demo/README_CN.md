@@ -45,4 +45,4 @@ Note:
 
 - LD_LIBRARY_PATH 必须采用全路径
 - 基于性能原因，demo中将 RKNN 模型的输出 fmt 设置为 RKNN_QUERY_NATIVE_NHWC_OUTPUT_ATTR，以获取更好的推理性能。此时模型输出 buf 是以 NHWC 顺序进行排布的，比如第一个输出的原始 shape 是 1,255,80,80，此时RKNN输出的 shape 是1,80,80,255，此demo中的后处理也根据这个顺序做了相应的优化调整。
-- RV1103B和RV1106B暂不支持NHWC输出
+- RV1103B和RV1106B暂不支持NHWC输出,为了获取更好的性能我们直接支持了NC1HWC2排布的后处理

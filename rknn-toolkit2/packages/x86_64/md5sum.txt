@@ -1,7 +1,7 @@
-68d357fea35adba6949235647d28bbe2  rknn_toolkit2-2.3.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-c4592cad114c942f589c883258ad8451  rknn_toolkit2-2.3.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-274e32e09426869e3a2e5058a693474b  rknn_toolkit2-2.3.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-fe425208351586cd2a49f4fa5df8da13  rknn_toolkit2-2.3.0-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-5899eeb9ba5031d748930a91607e10d9  rknn_toolkit2-2.3.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-bc5637d585a76fd8a07746dfbc7f9156  rknn_toolkit2-2.3.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-7fba77e6fcc54574556e6aa98ba96b59  rknn_toolkit2-2.3.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+b95d96207488f93c5d23c31aee1774d5  rknn_toolkit2-2.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+1820a5610ce8d87acffa97e16e7aa1fb  rknn_toolkit2-2.3.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+fb7b5611387869177d74960f7307768b  rknn_toolkit2-2.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+bb53f9cbcdc17d8e5387fc3e9abbf9ed  rknn_toolkit2-2.3.2-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+fb2590d8b134b32ffe127b1670959f25  rknn_toolkit2-2.3.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+4f60373d8ba5cae81e92da799cd9f281  rknn_toolkit2-2.3.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+9b53e07c4df8310739e130d893e46836  rknn_toolkit2-2.3.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl

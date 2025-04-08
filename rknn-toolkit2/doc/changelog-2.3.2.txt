@@ -1,0 +1,1072 @@
+2025-4-1:
+版本: v2.3.2:
+更新内容:
+1. 修复图优化部分报错和卡死问题
+2. 更新SDPA相关支持
+3. 完善Norm的相关支持
+4. 优化Conv/Reshape部分场景下的性能
+5. 新增auto_hybrid功能
+6. 新增w4a16下的分组量化支持
+7. 新增stream op支持
+8. 新增w4a16下的GDQ量化支持
+9. 完善TP消除机制
+10. 新增冗余维度消除的图优化支持
+11. 新增fcclipNonzero支持
+12. 更新LSTM 4对齐补全机制
+13. 更新rknn convert功能
+14. 优化扩展OP的内部量化流程
+15. 修复部分动态shape问题
+16. 优化swap op交换规则
+17. 添加rv1126b的平台支持
+18. 完善expand/scatternd/einsum/matmul/gather等支持
+
+2024-11-4:
+版本: v2.3.0:
+更新内容:
+1. 更新依赖库版本
+2. 增加arm64的支持
+3. 优化大模型转换性能
+4. 修复matmul/sdpa/norm/softmax/where/transpose等OP问题
+5. 修复pytroch/caffe/fp16等模型加载问题
+
+2024-9-18:
+版本: v2.2.2b0:
+更新内容:
+1. 增加rk3576 w4a16对称量化支持
+2. 优化sdpa/matmul的支持
+
+2024-9-2:
+版本: v2.2.0:
+更新内容:
+1. 增加对bool输出的连扳推理支持
+2. 增加rv1106b支持
+3. whl包标准化(manylinux)
+4. 优化pad和mul相关的消融规则
+5. 优化TP的图级别消除
+6. 优化QAT模型支持
+7. 优化Gather性能
+8. 提高连板稳定性
+9. 更新动态shape功能
+10. 修复大模型混合量化报错
+11. 修复Caffe的inplace layer报错
+12. 完善带broadcast的Less/Greater/LessOrEqual/GreaterOrEqual/And/Or/Max/Min/Mean/Sum算子情况支持
+13. 增加RK3576 exSoftmaxMask(softmax+where)算子支持
+14. 完善Softmax算子支持
+15. 增加RK3562、RK3588、RK1106 Hardmax支持
+16. 完善RK3576 ConvDepthwise + Eltwise OP融合
+17. 增加RK3576 FP16类型Conv稀疏化推理
+18. 修复多线程运行失败问题
+19. 修复RKLLM模型和RKNN模型混合运行失败问题
+
+2024-8-22
+版本: v2.1.1b1:
+更新内容:
+1. 增加Transpose NPU算子支持，例如放宽perm=[1,2,0,3]规格NPU算子限制。
+2. 增强mode=bilinear Resize CPU算子浮点类型性能。
+3. 增加pixel-norm算子CPU实现。
+4. 增加python3.12的支持
+5. 增加动态权重conv的部分支持
+6. 增加PixelNorm/Sum支持
+7. 优化split&elements子图结构性能
+8. 优化exNorm前后Reshape开销
+9. 完善 einsum 支持
+10. 修复超2G模型报错
+
+2024-8-14
+版本: v2.1.1b0:
+更新内容:
+1. rk3576增加softmaxmask NPU算子支持。
+2. 增加lpNormalization非4维支持
+3. 优化Pool/GatherElements性能
+
+2024-8-1
+版本: v2.1.0:
+更新内容:
+1. 增加int32/int64的输出类型的支持
+2. 修复OneHot导致的异常问题
+3. 增加flash attention的配置
+4. 更新pip源
+5. 修复量化参数异常问题
+6. 修复精度分析余弦值不准确问题
+
+2024-7-29
+版本: v2.0.0b24:
+更新内容:
+1. 修复RV1103B若干模型错误的问题
+2. 完善Conv的tiling功能
+3. 修复Lstm子图/layernorm的报错问题
+4. 修复Caffe的Split问题
+
+2024-7-22
+版本: v2.0.0b23:
+更新内容:
+1. 修复Add+Relu在开启global_fuse后融合失效以及int8 CPU exSoftmax13算子实现输出没做round的问题
+2. 完善layernorm/exmatmul/Glu支持
+3. 删除rknn.config的target_sub_class参数
+4. 修复mmse存在的报错问题
+5. 增加对paddle导出的onnx模型的支持
+
+2024-7-15
+版本: v2.0.0b22:
+更新内容:
+1. 修复Runtime不兼容<=0.8.0版本rknpu驱动的问题
+2. 完善exWindow/reducemean/cumsum支持
+3. 修复图优化进度条显示问题
+4. 修复scipy库报错问题
+    
+2024-7-12
+版本: v2.0.0b21:
+更新内容:
+1. [修复]
+  1) 修复输入出现4维undefine layout等若干Bug
+  2) 修复1103b板子信息上错误并增加rknn_server版本检查
+  3) 修复sparse_infer开启时的报错问题
+2. [特性]
+  1) 增加one-hot/top-k算子支持
+  2) 增加exWindow mode=partition_num_first支持
+  3) 增加ConvTranspose+Sigmoid融合支持
+  4) 增加无效ReduceMean/ReduceSum消除规则
+  5) 增加1103b等小内存平台的分段传输功能
+3. 优化SDPA的仿真器推理速度
+4. 完善对带有Constant的external_data的支持
+5. 完善图优化规则优先级逻辑, 支持多级优先级
+
+2024-6-28
+版本: v2.0.0b20:
+更新内容:
+1. 增加exNorm的OP量化支持
+2. 优化模型转换中shape推理的耗时
+3. 修复Slice去除无效参数导致的错误
+4. 修复自定义OP的shape推理异常问题
+5. 修复softmax因axis为负值导致的异常
+
+2024-6-26
+版本: v2.0.0b19:
+更新内容:
+1. 修复prelu算子错误
+2. 增加Matmul API B_layout=TP_NORM功能以支持B输入是NxK的数据排布
+3. RK3588增强大channel的exNorm算子支持
+4. 增加图优化进度条显示
+5. 完善w4a8的量化计算方式
+6. 修复exmatmul/deconv/Reduce类OP异常问题
+7. 修复Concat/Add/Reshape的消融问题
+8. 修复模型裁剪type错误和shape推理的问题
+
+2024-6-20
+版本: v2.0.0b18:
+更新内容:
+1. 修复部分激活函数下溢出和Pad浮点算子出现NaN的Bug
+2. 增加更多Transpose算子规格的NPU支持;优化非对齐Concat的效率
+3. 更新exglu/exnorm/Elu/Log/Sub/Div/avgpool和多级split/concat支持
+4. 增加rv1103b的平台支持
+5. 更新Relu/Clip/LeakyRelu/Elu/TopK的5维支持
+6. 优化swap合并性能和bypass特性支持
+7. 完善reduce类OP的图优化支持
+8. 修复多slice/gather/scatternd的合并问题
+
+2024-6-13
+版本: v2.0.0b17:
+更新内容:
+1. 更新Einsum/Softmax/ReduceSum/Gather支持
+2. 增加BN/rmsnorm/Floor等消融规则
+3. 修复exmatmul/GreaterOrEqual问题
+
+2024-6-12
+版本: v2.0.0b16:
+更新内容:
+1. 完善BN与deconv的融合规则
+2. 修复Slice的交换规则问题
+
+2024-6-8
+版本: v2.0.0b15:
+更新内容:
+1. 增加config的quantized_hybrid_level配置参数
+2. 增加bn和conv/deconv的合并规则
+3. 更新Gather/TP/并行OP相关支持
+4. 增加对sequence类型的部分支持
+5. 修复w8a16下mmse可能报错的问题
+
+2024-5-31
+版本: v2.0.0b14:
+更新内容:
+1. Runtime对部分CPU算子模型解析参数错误的兼容性问题
+2. 增加convtranspose+relu/leakyrelu的融合
+3. 优化常量折叠对空tensor的支持
+4. 完善avgpool的图优化处理
+
+2024-5-29
+版本: v2.0.0b13:
+更新内容:
+1. 修复多batch SDPA算子结果错误和Runtime兼容老版本rknn模型问题
+2. 增加rv1103平台的SDPA支持
+3. 修改quantized_dtype定义, 增加部分w4a16/w4a8的量化支持
+4. 修复混合量化推荐功能异常问题
+
+2024-5-24
+版本: v2.0.0b12:
+更新内容:
+1. 修复RK3562 exNorm NPU算子中间结果溢出问题
+2. 增加对大kernel_size卷积支持
+3. 完善Glu子图合并支持和非4D支持
+4. 修复1维Dropout问题
+5. 修复CodeGen输入文件异常问题
+
+2024-5-20
+版本: v2.0.0b11:
+更新内容:
+1. 增加exNorm CPU算子支持
+2. 增加scalar常量/reducel2/Gelu子图支持
+3. 优化axis-OP附近Reshape消除规则
+4. 优化exMatMul的执行性能和精度问题
+5. 修复精度分析core_mask参数失效问题
+6. 修复带Constant节点的常量折叠问题
+7. 修复超大模型的内存问题
+8. 修复gather子图/SDPA/swap规则问题
+
+2024-5-16
+版本: v2.0.0b10:
+更新内容:
+1. RK3576增加exSDPA算子多核支持
+2. 修复Reshape/Transpose算子Bug/部分exNorm结果不正确问题
+3. 优化exWindow/Gather子图融合问题
+4. 修复并行Slice消除问题
+5. 修复where转Clip的报错问题
+
+2024-5-7
+版本: v2.0.0b9:
+更新内容:
+1. 将exLayerNorm/exMeanVarianceNorm/RMSNorm统一转换成exNrom
+2. 完善exMatMul算子功能
+3. 完善Transpose/Reshape图优化功能
+4. 增加Transformer模型性能
+5. 完善Reshape/TP/Mul/Gather消融功能
+6. 优化Concat/Split/Slice的性能
+7. 增加exWindow/SDPA/大尺寸Conv的支持
+8. 优化动态shape的图优化处理流程
+
+2024-4-28
+版本: v2.0.0b8:
+更新内容:
+1. 优化Concat/Split的对齐规则
+2. 修复CodeGen在没有设置输入时的报错
+3. 修复错误捕抓模块的问题
+4. 修复shape推理的死循环问题
+5. 修复inference接口在传入大写的data_format时的报错问题
+
+2024-4-23
+版本: v2.0.0b7:
+更新内容:
+1. 修复gather融合在indices为scalar值时的错误
+
+2024-4-19
+版本: v2.0.0b5:
+更新内容:
+1. 增加对rv1103的i16的混合量化支持
+2. 优化rknn.config错误日志
+3. 优化大尺寸stride的conv的支持
+4. 优化rknnlog异常捕抓模块日志太长、不清晰的问题
+5. 修复静态图动态化时reshape参数错误的问题
+
+2024-4-15
+版本: v2.0.0b4:
+更新内容:
+1. 增加对TopK的部分转换支持
+
+2024-4-12
+版本: v2.0.0b3:
+更新内容:
+1. [RK3588]增加更多Transpose规格的NPU算子支持
+2. 修复fp16的模型加载报错问题
+
+2024-4-9
+版本: v2.0.0b2:
+更新内容:
+1. 增加exSwish的beta属性支持
+2. 修复input_size_list解析错误的问题
+
+2024-4-3
+版本: v2.0.0b1:
+更新内容:
+1. 修复Div算子height/width方向broadcast情况错误
+2. 增加RKNN_FLAG_MODEL_BUFFER_ZERO_COPY标志，用于NPU分配的model
+buffer初始化上下文
+3. 修复部分Transpose和Reshape错误问题
+4. 增加Split/TP/Relu的消除规则
+5. 增加动态shape的模型裁剪和CodeGen支持
+6. 更新对MeanVarNorm/GLU的支持
+7. 修复EinSum/Slice转换问题
+8. 修复量化模型Clip的min值问题
+9. 更新QAT对输入&输出量化参数不一致的支持
+10. 修复常量折叠可能存在的遗留无效常量问题
+
+2024-3-22
+版本: v2.0.0b0:
+更新内容:
+1. 修复部分图优化问题
+2. 更新Matmul支持
+3. 更新稀疏推理功能
+4. 更新codegen功能
+5. 更新onnx_edit功能
+
+2024-2-26
+版本: v1.6.2b0:
+更新内容:
+1. 增加onnx_edit接口
+2. 更新gen_cpp_demo功能
+3. 更新torch 2.1.0的支持
+4. 更新elu/cat支持
+5. 更新量化onnx模型的支持
+6. 更新自定义op用例和文档
+7. 修复部分dilations问题
+
+2024-2-19
+版本: v1.6.1b13:
+更新内容:
+1. [RK3576] 增加target支持
+2. 修复rknn_convert问题
+3. 更新sigmoid支持
+4. 优化transpose/reshape性能
+5. 优化工具包大小
+6. 修复量化参数错误问题
+7. 添加cat的量化支持
+8. 修复reshape优化问题
+9. 更新自定义op的用法
+
+2024-1-28
+版本: v1.6.1b11:
+更新内容:
+1. [RK3588] 增加更多规格Reshape算子NPU支持
+2. 添加rk3576部分支持
+
+2024-1-23
+版本: v1.6.1b9:
+更新内容:
+1. [RK3588] 修复BEVformer模型融合错误问题
+2. 修复bias量化参数问题
+3. 更新MatMul转换支持
+4. 修复图优化可能存在的死循环问题
+5. 更新MeanVariance支持
+
+2024-1-19
+版本: v1.6.1b8:
+更新内容:
+1. [RK3588] 修复Pad算子错误问题
+2. 更新pt的linear/deconv/bn/mul量化op支持
+3. 优化conv+reshape/deconv/性能
+4. 更新量化转换节点的支持
+5. 添加tranpose消除优化
+
+2024-1-15
+版本: v1.6.1b7:
+更新内容:
+1. [RK3588] 增加exMeanVarianceNorm算子支持
+
+2024-1-12
+版本: v1.6.1b6:
+更新内容:
+1. [RK3588] 优化rknn模型内部的layout转换性能
+2. 修复部分adb问题
+3. 修复pt模型的量化dtype问题
+4. 修复opset转换问题
+5. 修复pt模型的部分op支持
+6. 更新自定义op的支持
+7. 更新ScatterND/DeConv/Gather的支持
+8. 添加Concat/Scatternd相关优化
+9. 修复auto_pads与pads相关逻辑
+
+2023-12-26
+版本: v1.6.1b3:
+更新内容:
+1. [RK3566/RK3562] 增加动态权重卷积支持
+2. [Matmul] 修改Matmul API的rknn_matmul_info结构体定义,rknn_matmul_api.h兼容1.5.2版本的头文件
+3. [OP] 修复Not算子出错的Bug
+4. 修复图优化部分bug
+
+2023-12-22
+版本: v1.6.1b1:
+更新内容:
+1. [RK3566] 修复float16 Conv+Activation层融合的错误
+2. [Matmul] 增加Matmul API添加量化参数的功能,rknn_matmul_api.h头文件更新
+3. 更新layernorm支持
+4. 修复图优化部分bug
+5. 添加部分图优化规则
+6. 添加QAT模型的channel支持
+7. 添加float64模型支持
+
+2023-12-19
+版本: v1.6.1b0:
+更新内容:
+1. 修改hybrid_quantization_step1接口生成推荐层逻辑.proposal=False不生成推荐层
+2. 增加部分OP的2纬~6维的图优化支持
+3. 修复图优化部分bug
+4. 添加部分图优化规则
+5. 更新日志提示
+6. 修复部分pb模型问题
+
+2023-11-30
+版本: v1.6.0:
+更新内容:
+1. 优化部分图优化规则
+2. 更新docker镜像为ubuntu20.04/cp38
+3. 更新对cp37/cp39/cp311版本的支持
+4. 添加自定义OP功能
+
+2023-12-11
+版本: v1.5.3b21:
+更新内容:
+1. 修复非对齐channel的Expand算子结果错误问题
+2. [RK3588]修复start=-1, end=-w-1, step=-1的slice算子结果错误问题
+3. [RV1106]:
+    1) 增加Transpose perm=[1,0,2,3]优化
+    2) 修复RKNN_QUERY_OUTPUT_ATTR查询fmt错误问题
+4. Matmul API头文件数据结构优化,新app需更新头文件并编译程序
+
+2023-11-24
+版本: v1.5.3b17:
+更新内容:
+1. 修复动态权重卷积的bug
+2. 添加部分结构图优化，如Transformer FFN
+3. 修复部分图优化报错问题
+4. 更新eval_perf&eval_memory功能
+5. 添加部分pytorch的OP支持
+
+2023-11-13
+版本: v1.5.3b15:
+更新内容:
+1. 添加rknn_convert的功能
+2. 更新GLU的支持
+3. 修复部分图优化失效报错
+4. 优化Transformer的FFN结构
+5. 更新对ONNX的opset 12~19的支持
+
+2023-11-03
+版本: v1.5.3b14:
+更新内容:
+1. 支持opset 12~19 的ONNX模型.
+2. 优化RV1103/RV1106 Runtime初始化模型速度.
+3. 优化eval_mem接口显示内容.
+4. 其他若干Bug修复.
+5. 更新dynamic_input对只存在一组shape的支持
+6. 修复常量折叠可能导致的问题
+7. 添加对If的部分支持
+8. 修复onnx模型裁剪导致的问题
+9. 更新rknn.eval_memory功能
+10. 修复新torch版本导致的部分错误
+11. 更新pb/tflite模型的支持
+
+2023-10-27
+版本: v1.5.3b13:
+更新内容:
+1. 修复rknn_set_io_mem接口输入输出内存地址相同导致的错误。
+2. 修复”unknown target error“报错日志。
+3. 其他若干bug修复。
+4. 修复DFP量化问题
+5. 去除对torchvision包的依赖
+6. 修复新版本numpy导致的包错
+
+2023-10-21
+版本: v1.5.3b11:
+更新内容:
+1. 修复部分Slice层生成的rknn模型输出形状不对的Bug.
+2. 修复Conv开启quantize weight后结果错误的Bug.
+3. 修复Runtime显示ddr cycle错误等Bug.
+4. 添加config.quantize_weight的功能
+5. 优化RoiAlign/Softmax/ReduceL2/Gelu的支持
+6. 修复带external权重的fp16模型加载问题
+7. 添加部分Conv融合功能, 提高性能
+8. 更新requirements.txt的部分包依赖
+9. 更新模型剪枝支持
+10. 更新部分功能的用户提示
+11. 更新examples示例
+12. 修复部分量化信息错误导致的精度问题
+13. 添加对cp37/cp39/cp311版本的支持
+14. 更新精度分析功能
+
+2023-9-21
+版本: v1.5.3b7:
+更新内容:
+1. 支持自定义LayerNorm参数,避免float16类型输入上溢出.
+2. 添加config.remove_reshape的功能
+3. 优化Where的支持
+
+2023-9-12
+版本: v1.5.3b6:
+更新内容:
+1. 支持输入类型是int64的Add.
+2. 支持使用子图定义来做混合量化
+3. 修复部分dynamic_input功能报错
+4. 修复部分图优化报错
+5. 优化GEMM的支持
+6. 修复部分caffe模型解析错误问题
+
+2023-9-5
+版本: v1.5.3b2:
+更新内容:
+1. 修复rknn_batch_size>1的动态shape模型特定情况随机错误问题
+2. 更新QAT模型支持
+3. 修复ubuntu16.04存在的报错问题
+
+2023-9-1
+版本: v1.5.3b1(功能未合并到主分支):
+更新内容:
+1. 动态权重的普通卷积支持
+2. 添加cocnat/split/slice/reshape的图优化
+3. 添加导出常量输出的功能
+4. 修复mmse可能存在的报错问题
+
+2023-8-28
+版本: v1.5.3b0(功能未合并到主分支):
+更新内容:
+1. 优化Transpose+Matmul结构的GPU运算效率
+2. 优化dynamic_input功能
+3. split并行节点的优化
+4. 优化部分库对python版本的依赖
+5. 添加自定义op支持
+
+2023-8-25
+版本: v1.5.2:
+更新内容:
+1. 添加glu支持
+2. 更新examples
+3. 完善dynamic_input功能
+4. 优化transformer模型支持
+5. 添加torch的部分op支持
+6. 更新rknn_batch_size支持
+
+2023-7-14
+版本: v1.5.1b19:
+更新内容:
+1. 优化quantize_weight功能,优化部分网络生成的rknn模型大小.
+
+2023-7-3
+版本: v1.5.1b18:
+更新内容:
+1. 增加Matmul层GPU target支持
+2. 增加where+softmax子图优化
+3. 修复load_rknn在dynamic_input启用时的部分问题
+4. 添加新的图优化规则
+5. 更新对大模型动态输入的支持
+
+2023-6-29
+版本: v1.5.1b17:
+更新内容:
+1. 修复LSTM的重复调用rknn_inputs_set导致卡死问题
+2. 修复Transpose输出内存分配过大问题
+3. 优化部分单通道输入大分辨率模型效率
+4. 修复图优化规则报错问题
+5. 修复原生动态模型的大部分问题
+
+2023-6-25
+版本: v1.5.1b16:
+更新内容:
+1. 修复动态shape LSTM的错误问题
+2. 更新config.target_platform的默认值
+3. 修复原生动态模型的支持问题
+
+2023-6-16
+版本: v1.5.1b13:
+更新内容:
+1. 动态shape rknn_batch_size > 1的支持
+2. 更新动态输入的支持
+3. 更新部分图优化支持
+4. 添加对原生动态模型的初步支持
+
+2023-6-9
+版本: v1.5.1b10:
+更新内容:
+1. reshape/transpose等胶水算子的layout优化
+
+2023-6-9
+版本: v1.5.1b9:
+更新内容:
+1. 修复动态shape最高维度非1情况结果错误的bug
+
+2023-6-9
+版本: v1.5.1b8:
+更新内容:
+1. [C API]修复多核多batch模式运行结果错误的Bug
+2. [C API]优化rknn_init耗时
+3. [C API]增加CURRENT_NATIVE_INPUT/OUTPUT_ATTR属性查询
+4. 修复部分模型internal 内存偏大的问题
+5. 修复动态模型支持问题
+6. 动态模型添加对rknn_batch_size的支持
+7. 更新部分图优化支持
+
+2023-6-1
+版本: v1.5.1b3:
+更新内容:
+1. 修复动态shape性能分析/内存分析失败的Bug
+2. 降低导出RKNN模型大小
+3. 添加通过加载多个onnx模型来仿真动态模型的实验性功能
+
+2023-5-30
+版本: v1.5.1b2:
+更新内容:
+1. [新特性]采用预编译模型，提高Runtime初始化RKNN模型效率。要求重新导出RKNN模型并更新Runtime，若不使用新特性无需重新导出
+2. 修复稀疏化的报错和部分精度问题
+3. 更新cp38/cp310的依赖库版本
+4. 混合量化添加对子图进行混合量化的功能
+
+2023-5-27
+版本: v1.5.1b1:
+更新内容:
+1. 修复Pad算子的错误
+2. 添加Mul的广播部分支持
+
+2023-5-18
+版本: v1.5.0:
+更新内容:
+1. 更新config.dynamic_input的接口定义
+2. 修复部分op属性获取失败的问题
+
+2023-5-17
+版本: v1.4.6b2:
+更新内容:
+1. 修复RK3562 多batch rknn模型C API运行错误的Bug
+
+2023-5-15
+版本: v1.4.6b1:
+更新内容:
+1. 修复普通API多输入多输出模型动态shape出错的bug
+2. 增加RK3562 Matmul API支持
+3. 修复第一层为Reshape时dynamic_input失败的问题
+4. 修复opset12~15可能存在的问题
+
+2023-5-11
+版本: v1.4.6b0:
+更新内容:
+1. 优化RKNN_FLAG_COLLECT_MODEL_INFO_ONLY初始化效率
+2. 修复1x1x1x1两个feature Add算子转换Bug
+3. 修复load_rknn加载老版本模型出错的兼容性问题
+4. 添加opset13/14/15的部分支持 (试验性质)
+5. 修复eval_perf导出csv时可能会报错的问题
+6. 修复load_rknn报错问题
+7. 添加非4维的ReduceXXX支持
+
+2023-5-6
+版本: v1.4.5b3:
+更新内容:
+1. 增加RKNN_MIN_TIMEOUT_MS环境变量设置NPU提交任务超时的阈值
+2. 添加一维Where的支持
+3. 修复大模型包含Constant节点报错的问题
+4. 优化权重稀疏化的性能
+
+2023-4-28
+版本: v1.4.5b2:
+更新内容:
+1. 修复dynamic_input普通api结果错误问题
+2. 修复非4维输入连板推理报错问题
+
+2023-4-27
+版本: v1.4.5b1:
+更新内容:
+1. 修复dynamic_input连板推理输出shape报错问题
+2. 添加matmul前后transpose的消除规则, 并优化matmul性能
+3. 修复大模型编译报错问题
+4. 添加load_rknn的dynamic_input支持
+5. 修复代码生产时resize出错的问题
+
+2023-4-26
+版本: v1.4.5b0:
+更新内容:
+1. [RK3562] 优化Transformer模型中的transpose/reshape多算子级联的性能
+2. 增加后缀为.torchscript的pytorch文件格式支持
+
+2023-4-25
+版本: v1.4.4b5:
+更新内容:
+1. 修复dynamic_input在存在Reshape下的推理报错问题
+2. 增加dynamic_input多轴动态支持
+3. 更新cpp部署代码生成功能
+
+2023-4-23
+版本: v1.4.4b3:
+更新内容:
+1. 添加dynamic_input功能
+2. 修复3维deconv报错问题
+3. 更新大模型转换支持
+4. 优化模拟器推理性能
+5. 添加cpp部署代码生成功能
+6. 修复load_rknn的推理问题
+
+2023-4-14
+版本: v1.4.3b12:
+更新内容:
+1. [RK3562]增加指定层跑CPU/GPU/NPU特性
+2. 修复concat优化规则
+3. 添加op_target功能
+
+2023-4-11
+版本: v1.4.3b10:
+更新内容:
+1. 更新rknn编译器
+
+2023-4-10
+版本: v1.4.3b9:
+更新内容:
+1. 更新tensorflow QAT支持
+2. 优化大模型的转换内存和性能
+3. 修复图优化问题，并添加部分新规则
+4. 修复mmse报错问题
+5. 优化conv的拆分规则
+6. 修复混合量化问题
+7. 添加RMSNorm支持
+8. load_onnx添加input_initial_val参数
+9. 修复onnxoptimizer报错问题
+
+2023-3-28
+版本: v1.4.3b4:
+更新内容:
+1. 修复5维slice的问题
+
+2023-3-27
+版本: v1.4.3b3:
+更新内容:
+1. [RK3566]优化CNN+LSTM结构模型的内存
+2. 优化Concat性能
+3. load_tflite/load_tensorflow添加input_is_nchw参数
+
+2023-3-23
+版本: v1.4.3b2:
+更新内容:
+1. mul/add/div/sub算子优化
+2. 修复多级maxpool量化问题
+
+2023-3-21
+版本: v1.4.3b1:
+更新内容:
+1. 修复Expand算子Bug
+
+2023-3-21
+版本: v1.4.3b0:
+更新内容:
+1. [RK3562]增加内部Buffer循环复用功能
+2. [RK3562]优化多batch layerNorm算子精度
+3. [RK3566]int8 Matmul CPU算子优化
+4. [全平台]expand NPU OP支持
+5. [全平台]fp16模型输入耗时优化
+6. 完善Cast算子的支持
+7. 修复remove_weight/多输入归一化参数匹配错误等Bug
+8. 更新常量折叠支持
+9. 更新eval_perf功能
+10. 增加float16模型的支持
+11. 优化常量共享的模型
+
+2023-3-9
+版本: v1.4.2b6:
+更新内容:
+1. RK3562平台Bug修复
+2. 增加model_pruning控制，并支持deconv，以及Bug修复
+3. 增加If/Loop的部分转换支持
+4. 修复MMSE部分模型失败的问题
+5. 优化仿真器的结果
+6. 增加python3.10的支持
+7. 优化转换内存占用
+8. 增加部分非4维Op支持
+
+2023-2-15
+版本: v1.4.2b1:
+更新内容:
+1. 修复RK3562查询的size_with_stride大小错误问题
+
+2023-2-14
+版本: v1.4.2b0:
+更新内容:
+1. 更新neg支持
+2. 增加min/max的融合优化
+3. 增加了RK3562平台支持
+
+2023-2-8
+版本: v1.4.1b23:
+更新内容:
+1. 修复特定stride反卷积算子的Bug
+2. 更新MatMul的perchannel量化支持
+3. 更新动态图检测功能
+4. 优化where的量化支持
+
+2023-2-2
+版本: v1.4.1b22:
+更新内容:
+1. 增加Equal算子对Bool类型支持
+2. 修复Matmul算子/exLayerNorm算子的Bug
+3. 更新equal/slice/cast/pad/ConvTranspose支持
+4. 更新QAT模型支持
+5. 移除bfloat16包依赖
+
+2023-1-13
+版本: v1.4.1b21:
+更新内容:
+1. 修复RK3588 Matmul接口错误
+2. 修复4通道输入float16类型模型在RK356X平台查询虚宽错误问题
+3. 模型不填写量化信息情况下，默认Tensor量化类型为float16
+4. 增加unk__xxx无效shape支持
+5. 更新abs/dataconvert支持
+6. 优化模型剪枝功能
+
+2023-1-6
+版本: v1.4.1b19:
+更新内容:
+1. [功能]增加Conv+Add+Relu子图融合。
+2. 修复Conv+Add在量化参数不一致情况下融合的Bug。
+3. 修复RK3588 大kernel卷积的Bug。
+4. 增加模型剪枝功能
+5. 优化Sigmoid的量化参数
+6. 增加rk3562的支持
+
+2022-12-17
+版本: v1.4.1b17:
+更新内容:
+1. [优化]增加NPU输出NCHW数据支持。
+2. [功能]增加conv+add+relu融合支持。
+3. 修复最高维度非1模型MaxPool算子错误的Bug。
+4. 修复最高维度非1模型首层Conv错误的Bug。
+5. 修改4维npy的layout定义
+6. 优化dataconvert/gather/transpose/mul/maxpool/sigmoid/pad/conv/relu/softmax支持
+7. 增加aten::upsample_nearest2d支持
+8. 修复仿真器在perchannel下可能的溢出问题
+9. 增加更多的转换错误提示
+10. 更新混合量化支持
+
+2022-11-26
+版本: v1.4.1b14:
+更新内容:
+1. 修复寄存器位宽限制警告。
+2. 优化Concat CPU算子效率。
+3. 增加2维layernorm支持
+4. 更新MatMul支持
+
+2022-11-19
+版本: v1.4.1b13:
+更新内容:
+1. [重要]Android NDK编译器升级到r23b版本，APP建议使用该版本NDK重新编译。
+2. LSTM结构更新升级，需要重新转换模型。
+3. RK356X增加Transpose优化。
+4. RK356X模型非对齐通道的float类型NCHW输出效率优化。
+5. 增加常量输出节点删除功能
+6. MMSE支持无法batch扩维的模型
+7. 修复resize/clip缺失属性的问题
+8. 增加swish/dataconvert/softmax/lstm/layernorm相关优化
+9. 增加离群值检测功能
+10. 优化非4维OP的性能
+
+2022-11-01
+版本: v1.4.1b12:
+更新内容:
+1.修复LSTM模型多次转换结果不一致问题。
+2.改进onnx模型裁剪功能
+
+2022-10-29
+版本: v1.4.1b11:
+更新内容:
+1.修复Runtime外部分配内接口运行LSTM错误问题。
+2.修复Runtime rknn_dup_context接口运行LSTM错误问题。
+3.优化大模型转换性能
+4.添加Loop/Scatter转换支持
+
+2022-10-24
+版本: v1.4.1b10:
+更新内容:
+1.修复LSTM兼容性问题。
+2.修复RK3588输入自动填充虚宽值的重复运行错误的bug。
+3.修复出现size=0的中间tensor刷cache失败的问题(模型需重新生成)。
+4.增加IN、Swish非4维支持
+5.添加tflite支持perchannel的QAT模型
+
+2022-10-19
+版本: v1.4.1b9:
+更新内容:
+1.修复RV1106 rknn_detroy接口内存泄漏问题。
+
+2022-10-18
+版本: v1.4.1b8:
+更新内容:
+1.修复非LSTM模型共享权重时rknn_init失败的bug。
+
+2022-10-17
+版本: v1.4.1b7:
+更新内容:
+1.修复RK3588分支合并后的bug。
+
+2022-10-17
+版本: v1.4.1b6:
+更新内容:
+1.修复大分辨率输入的bug。
+2.优化无效pad
+
+2022-10-13
+版本: v1.4.1b5:
+更新内容:
+1.修复32-bit库matmul错误的bug。
+2.添加FAQ文档
+3.更新图优化规则
+4.调节MatMul量化方式
+
+2022-10-12
+版本: v1.4.1b4:
+更新内容:
+1.修复LSTM共享权重失败问题。
+2.更新图优化规则
+
+2022-10-10
+版本: v1.4.1b3:
+更新内容:
+1. LSTM寄存器配置内存占用的优化。
+2. 优化MMSE量化算法
+3. 优化KL量化算法
+
+2022-9-30
+版本: v1.4.1b2:
+更新内容:
+1. 关闭寄存器差量支持
+2. 增加Batchnorm+Relu融合支持
+3. 增加32-bit Runtime库Neon优化支持。
+4. 优化rknn_init空初始化性能。
+5. 更新精度分析功能
+6. 修复QAT模型的hardsigmoid等问题
+7. 修复lstm/gru图优化问题
+8. 更新图优化规则
+
+2022-9-14
+版本: v1.4.1b1:
+更新内容:
+1. 增加寄存器差量支持
+2. 修复lstm的bug
+
+2022-9-14
+版本: v1.4.1b0:
+更新内容:
+1. 增加rknn.config接口增加npu_do_output_nhwc配置，开启或关闭NPU直接输出NHWC的特性
+2. 修复QAT模型解析问题
+
+
+------------------------------------------------------------
+2022-8-20
+版本: v1.4.0:
+更新内容:
+1. 升级相关依赖包到主流版本
+2. 添加更多2/3/5维度的Op支持
+3. 更新config/init_runtime等接口
+4. 更新LSTM等Op支持
+5. 添加yuv输入支持
+6. 更新QAT模型支持
+
+2022-7-2
+版本: v1.3.4b5:
+更新内容:
+1. rknn-toolkit2:
+    1) optimize_onnx接口
+        a. 在设置optimization_level=2时，关闭conv+add融合。
+        b. 保留BatchNormalize算子带的量化参数。
+    2) RK3588屏蔽NPU直接输出NHWC layout的支持， RK3566/RV1106保留该功能。
+2.  C API:
+    1) RK3588/RK3566/RV1106支持传入一个包含rknn模型的大文件路径，rknn_init接口设置包含偏移和真实rknn模型大小的rknn_init_extend结构体指针。
+
+
+------------------------------------------------------------
+2021-4-22
+版本: v1.3.0:
+更新内容:
+1. 新功能: python3.8/ubuntu20.04 平台支持
+2. 修复一些已知的bug:
+    1) 修复了一些图优化和量化bug
+
+2021-4-7
+版本: v1.2.5:
+更新内容:
+1. 新功能: rv1103/rv1109平台的支持.
+2. 修复一些已知的bug:
+    1) 修复了一些QAT模型转换问题
+    2) 修复了一些图优化bug
+
+
+2021-1-27
+版本: v1.2.1-beta:
+更新内容:
+1. 新功能: 多batch的NHWC格式输入时,在H维度,有效元素个数与实际内存中的元素个数不一致时,支持H方向实际元素个数按照h_stride设置.
+2. 修复一些已知的bug:
+    1) LSTM算子内部变量重名的问题.
+
+
+------------------------------------------------------------
+2021-1-12
+版本：v1.2.0
+更新内容:
+1. 新功能: rk3588平台的支持; rknn模型加密支持; tensorflow/tflite/pytorch量化感知模型支持; 增加了一些新的 op 支持: InstanceNormalization, Swish, Conv1D等（详见 op support list）；增加了参数量计算以及算力分析
+2. examples 更新：增加了从 pytorch 转 onnx 的转换 demo：resnet18_export_onnx ；增加了pytorch量化感知模型的加载demo：resnet18_qat demo；增加了模型加密功能：添加了3588平台 rknn 转换 demo
+3. 接口更改：移除了 config，load_caffe，load_tensorflow等接口的一些不必要的参数设置，更新了 eval_perf 接口，详细改动见Uer_Guide文档
+4. 修复一些已知的bug:
+    1) 修复了一些模型无法转换rknn的问题
+    2) 修复了一些图优化bug
+    3) 修复了一些模型推理结果错误的问题
+    4) 修复了 pytorch、tflite 某些 op 转换失败的问题
+5. 优化: 精度分析耗时优化; 模型转换和量化耗时优化
+
+
+------------------------------------------------------------
+2021-8-12
+版本：v1.1.0
+更新内容:
+1. 新功能: LSTM，GRU的支持；增加了accuracy_analysis对比项目；增加了一些op支持：caffe hardswish；onnx gather,reduceMax等op；更新了更全面的图优化规则。
+2. examples更新：增加了yolov5的demo
+3. 修复一些已知的bug：
+    1）修复了一些模拟器的推理结果错误问题
+    2）修复了一些图优化bug
+    3）修复了一些大模型无法转换rknn的问题
+    4）修复了多输入的转换和推理bug
+4. 更新了文档，更新了OP支持列表
+
+2021-6-30
+版本：v1.1.0beta
+更新内容:
+1. 新功能: 混合量化功能(支持自定义是否量化以及量化参数修改)；完善了 accuracy_analysis 对比功能（包括连板对比结果)
+2. examples更新：增加了常用接口的demo示例：accuracy_analysis、batch_size、hybrid_quant、load_quantized_model、mmse、multi_input_test
+3. 修复一些已知的bug：
+    1）修复了一些int8/fp16模型的转换问题以及op精度问题
+    2）修复了一些图优化bug，修复了一些依赖的版本问题
+4. 更新了文档，更新了OP支持列表
+
+
+------------------------------------------------------------
+2021-4-30
+版本：v1.0.0
+更新内容:
+1. 新功能: 卷积类的per channel量化功能；添加了config中custom_inf的模型信息设置、img_quant_RGB2BGR设置；添加了eval performance的性能测试接口；增加了版本打印功能
+2. OP支持：1) 添加了Caffe新OP支持：Power/Tile/Eltwise(Max)/去除了normalize维度的限制; 2) 添加了onnx新OP支持:HardSigmoid/Pow/Tile
+3. 修复一些已知的bug：
+    1) 修复了caffe FC的输出shape以及name的错误
+    2) 优化了mmse的量化性能
+    3）修复caffe的Pooling层的输出shape计算错误
+    4）修复了caffe slice丢弃了其中一个输出的inference bug
+    5）修复了一些模型优化的bug
+4. 弃置了reorder_channel的config设置，由用户自行保证inference输入数据的channel正确性
+5. 更新了文档，更新了OP支持列表
+
+
+------------------------------------------------------------
+2021-4-2
+版本：v0.7.0
+更新内容:
+1. 新功能: 新的量化算法支持(mmse), 添加支持tensorflow的预量化模型导入
+2. 添加了Caffe新OP支持：relu6/ConvolutionDepthwise/Transpose/reorg
+3. 修复一些已知的bug:
+    1) 增加concat的非channel维度，非4维输入的支持
+    2) 修复了第一层是scale的预处理bug
+    3）更新了onnxruntime==1.7.0的版本
+4. 更新了文档，更新了OP支持列表
+
+
+------------------------------------------------------------
+2021-3-1
+版本：v0.6.0
+更新内容:
+1. 新功能: caffe load API添加指定输入name的接口；添加了caffe lrn(WithinChannel)的支持
+2. 添加了Caffe新OP支持：crop/flatten/normalize/proposal/reduction
+3. 添加了onnx/pytorch/tensorflow/darknet/tflite新OP支持
+4. 移除了aciq以及Kl散度量化功能
+5. 修复一些已知的bug:
+    1) 最后一层是reshape转换bug；
+    2) 修复了caffe中InnerProduct随机生成blob的bug；
+    3) 修复了过大的size导致GlobalAvgPool GlobalMaxPool crash的问题;
+    4) 修复了第一层是RoIpooling的维度错误；
+    5) 修复了SSD设备端推理错误的问题等。
+6. 更新了文档，增加了OP支持列表

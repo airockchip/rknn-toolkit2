@@ -1,7 +1,0 @@
-ee6e5fa85324185cbeb529f7c4e43c94  rknn_toolkit2-2.3.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-b859f3224ddc30982ba8526bb94f5c3b  rknn_toolkit2-2.3.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-d542270b1105e2e66b52c09677a00ca7  rknn_toolkit2-2.3.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-164f930f6877726f0707ba7e543610ec  rknn_toolkit2-2.3.0-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-2b302df3c235c45465f3e0bab610d86e  rknn_toolkit2-2.3.0-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-5e59aa17bc5a7764b06f3077209ad0fb  rknn_toolkit2-2.3.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-6e58d6f4dea578e0c3f12fc9b6835678  rknn_toolkit2-2.3.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl

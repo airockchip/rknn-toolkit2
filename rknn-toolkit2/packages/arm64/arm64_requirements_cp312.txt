@@ -15,5 +15,5 @@ numpy<=1.26.4
 
 # base
 onnx==1.16.1
-onnxruntime==1.17.0
+onnxruntime>=1.17.0
 torch>=1.13.1,<=2.2.0

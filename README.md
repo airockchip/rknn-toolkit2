@@ -22,6 +22,7 @@
   - RK3562 Series
   - RV1103/RV1106
   - RV1103B/RV1106B
+  - RV1126B
   - RK2118
 
 
@@ -50,7 +51,7 @@ Note:
   - Python 3.10
   - Python 3.11
   - Python 3.12
-- Latest version:v2.3.0
+- Latest version:v2.3.2
 
 
 
@@ -64,16 +65,12 @@ https://github.com/airockchip/rknn-llm
 
 # CHANGELOG
 
-## v2.3.0
-- RKNN-Toolkit2 support ARM64 architecture
-
-- RKNN-Toolkit-Lite2 support installation via pip
-
-- Add support for W4A16 symmetric quantization (RK3576)
-
-- Operator optimization, such as LayerNorm, LSTM, Transpose, MatMul, etc.
-
-    
+## v2.3.2
+- Support for RV1126B platform
+- Improved einsum and Norm operations support
+- Added automatic mixed precision functionality
+- Enhanced graph optimization capabilities
+      
 
  for older version, please refer [CHANGELOG](CHANGELOG.md)
 

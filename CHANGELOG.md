@@ -1,27 +1,56 @@
 # CHANGELOG
 
+## v2.3.2
+
+- Support for RV1126B platform
+
+- Improved einsum and Norm operations support
+
+- Added automatic mixed precision functionality
+
+- Enhanced graph optimization capabilities
+
+
+
 ## v2.3.0
 
 - RKNN-Toolkit2 support ARM64 architecture
+
 - RKNN-Toolkit-Lite2 support installation via pip
+
 - Add support for W4A16 symmetric quantization (RK3576)
+
 - Operator optimization, such as LayerNorm, LSTM, Transpose, MatMul, etc.
+
+
 
 ## v2.2.0
 
 - Support installation via pip
+
 - Optimize transformer model performance
+
 - Support Python 3.12
+
 - Operator optimization, such as softmax, hardmax, MatMul, etc.
+
+
 
 ## v2.1.0
 
 - Support RV1103B (Beta)
+
 - Support RK2118 (Beta)
+
 - Support Flash Attention (Only RK3562 and RK3576)
+
 - Improve MatMul API
+
 - Improve support for int32 and int64
+
 - Support more operators and operator fusion
+
+ 
 
 ## v2.0.0-beta0
 
@@ -101,7 +130,7 @@
 
 - Bug fix.
 
-    
+
 
 ## v1.3.0
 
@@ -159,7 +188,7 @@
 
 - Bug fix
 
-    
+
 
 ## v0.6
 - Initial version

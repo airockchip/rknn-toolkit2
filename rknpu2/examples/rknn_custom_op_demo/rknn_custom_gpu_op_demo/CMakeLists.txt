@@ -35,11 +35,11 @@ set(libopencl_SRCS
 add_library(OpenCL SHARED ${libopencl_SRCS})
 
 
-add_library(rkcst_argmax SHARED 
+add_library(rk_custom_argmax SHARED 
   src/rknn_custom_op_opencl_plugin_lib.cpp
 )
 
-target_link_libraries(rkcst_argmax
+target_link_libraries(rk_custom_argmax
   ${RKNN_RT_LIB}
 )
 
@@ -67,7 +67,7 @@ else()
 endif()
 
 
-target_link_libraries(rkcst_argmax
+target_link_libraries(rk_custom_argmax
   OpenCL dl 
 )
 
@@ -82,4 +82,4 @@ message(STATUS "target_soc = ${TARGET_SOC}")
 install(DIRECTORY model/${TARGET_SOC} DESTINATION ./model)
 file(GLOB CL_CERNEL_FILES "cl_kernel/*.cl ")
 install(FILES ${CL_CERNEL_FILES} DESTINATION ./model/)
-install(TARGETS rkcst_argmax DESTINATION lib)
+install(TARGETS rk_custom_argmax DESTINATION lib)

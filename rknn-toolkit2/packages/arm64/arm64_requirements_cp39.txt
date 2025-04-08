@@ -13,7 +13,7 @@ fast-histogram>=0.11
 numpy<=1.26.4
 
 # base
-onnx==1.14.1
+onnx==1.16.1
 onnxoptimizer==0.2.7
-onnxruntime==1.16.0
+onnxruntime>=1.16.0
 torch>=1.10.1,<=2.2.0

@@ -1,4 +1,4 @@
-以下 <TARGET_PLATFORM> 表示RK3566_RK3568、RK3562、RK3576或RK3588。
+以下 <TARGET_PLATFORM> 表示RK3566_RK3568、RK3562、RK3576、RK3588、RV1126B。
 
 # rknn模型来源说明
 各个平台的rknn模型来源于RKNN-Toolkit2的的examples/tflite/mobilenet_v1示例。

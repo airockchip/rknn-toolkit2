@@ -49,4 +49,4 @@ Note:
 
 - LD_LIBRARY_PATH must use the full path
 - For performance reasons, the output fmt of the RKNN model is set to **RKNN_QUERY_NATIVE_NHWC_OUTPUT_ATTR** in the demo to obtain better inference performance. At this time, the model output buf is arranged in the order of NHWC. For example, the original shape of the first output is **1,255,80,80**. At this case, the shape output by RKNN is 1,80,80,255. The post-processing in this demo is also optimized and adjusted according to this order.
-- RV1103B and RV1106B do not support NHWC output yet
+- RV1103B and RV1106B do not support NHWC output yet. To get better performance, we directly support post-processing of NC1HWC2 arrangement.

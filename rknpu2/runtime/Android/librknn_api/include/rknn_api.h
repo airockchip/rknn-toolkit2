@@ -376,12 +376,13 @@ typedef enum _rknn_tensor_mem_flags {
 } rknn_tensor_mem_flags;
 
 /*
-   The mode to sync cacheable rknn memory.
+   The mode to allocate rknn memory.
 */
 typedef enum _rknn_mem_alloc_flags {
     RKNN_FLAG_MEMORY_FLAGS_DEFAULT = 0 << 0, /* Same with RKNN_FLAG_MEMORY_CACHEABLE */
     RKNN_FLAG_MEMORY_CACHEABLE  = 1 << 0, /* Create Cacheable memory. */
     RKNN_FLAG_MEMORY_NON_CACHEABLE = 1 << 1, /* Create NON-Cacheable memory. */
+    RKNN_FLAG_MEMORY_TRY_ALLOC_SRAM = 1 << 2, /* Try to allocate memory in SRAM if possible. if SRAM is not enough, allocate rest memory in DRAM. */
 } rknn_mem_alloc_flags;
 
 /*
@@ -556,7 +557,7 @@ int rknn_set_batch_core_num(rknn_context context, int core_num);
 
 /*  rknn_set_core_mask
 
-    set rknn core mask.(only supported on RK3588 now)
+    set the core mask for the model.(only supported on multi-core NPU platform)
 
     RKNN_NPU_CORE_AUTO: auto mode, default value
     RKNN_NPU_CORE_0: core 0 mode
@@ -700,7 +701,7 @@ rknn_tensor_mem* rknn_create_mem(rknn_context ctx, uint32_t size);
     input:
         rknn_context ctx            the handle of context.
         uint64_t size               the size of tensor buffer.
-        uint64_t alloc_flags              control the memory is cacheable
+        uint64_t alloc_flags        memory allocation flags.
     return:
         rknn_tensor_mem             the pointer of tensor memory information.
 */

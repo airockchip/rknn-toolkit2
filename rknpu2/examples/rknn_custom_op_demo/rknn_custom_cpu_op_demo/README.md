@@ -9,7 +9,7 @@ Download link:
 
 [yolox_s.onnx](https://ftrg.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/examples/yolox/yolox_s.onnx)
 
-The converted RKNN models of platforms RK3562, RK356X, RK3576 and RK3588 are located in model folder.
+The converted RKNN models of platforms RK3562, RK356X, RK3576, RK3588 and RV1126B are located in model folder.
 
 # Aarch64 Linux Demo
 

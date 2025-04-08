@@ -193,6 +193,8 @@ int main(int argc, char *argv[])
     loop_count = atoi(argv[3]);
   }
 
+  int64_t start_us, elapse_us;
+
   const float nms_threshold = NMS_THRESH;
   const float box_conf_threshold = BOX_THRESH;
 
@@ -378,9 +380,9 @@ int main(int argc, char *argv[])
   printf("Begin perf ...\n");
   for (int i = 0; i < loop_count; ++i)
   {
-    int64_t start_us = getCurrentTimeUs();
+    start_us = getCurrentTimeUs();
     ret = rknn_run(ctx, NULL);
-    int64_t elapse_us = getCurrentTimeUs() - start_us;
+    elapse_us = getCurrentTimeUs() - start_us;
     if (ret < 0)
     {
       printf("rknn run error %d\n", ret);
@@ -411,60 +413,30 @@ int main(int argc, char *argv[])
     out_zps.push_back(output_attrs[i].zp);
   }
 
+  start_us = getCurrentTimeUs();
 
 #if defined(RV1106_RV1103)
     post_process((int8_t *)output_mems[0]->virt_addr, (int8_t *)output_mems[1]->virt_addr, (int8_t *)output_mems[2]->virt_addr, 
-      model_height, model_width, box_conf_threshold, nms_threshold, scale_w, scale_h, out_zps, out_scales, &detect_result_group);
+      model_height, model_width, box_conf_threshold, nms_threshold, scale_w, scale_h, out_zps, out_scales, &detect_result_group, NULL);
+
+    
 #else // RV1106B_RV1103B
-    printf("output origin tensors:\n");
-    memset(orig_output_attrs, 0, io_num.n_output * sizeof(rknn_tensor_attr));
+
+    int dim[5*3];
     for (uint32_t i = 0; i < io_num.n_output; i++) {
-      orig_output_attrs[i].index = i;
-      // query info
-      ret = rknn_query(ctx, RKNN_QUERY_OUTPUT_ATTR, &(orig_output_attrs[i]), sizeof(rknn_tensor_attr));
-      if (ret != RKNN_SUCC) {
-        printf("rknn_query fail! ret=%d\n", ret);
-        goto out;
-      }
-      dump_tensor_attr(&orig_output_attrs[i]);
+      dim[5*i+0] =  (int)output_attrs[i].dims[0];
+      dim[5*i+1] =  (int)output_attrs[i].dims[1];
+      dim[5*i+2] =  (int)output_attrs[i].dims[2];
+      dim[5*i+3] =  (int)output_attrs[i].dims[3];
+      dim[5*i+4] =  (int)output_attrs[i].dims[4];
     }
-
-    for (uint32_t i = 0; i < io_num.n_output; ++i) {
-      int size            = orig_output_attrs[i].size_with_stride * sizeof(int8_t);
-      output_mems_nhwc[i] = (int8_t*)malloc(size);
-    }
-
-    for (uint32_t i = 0; i < io_num.n_output; i++) {
-      if (output_attrs[i].fmt == RKNN_TENSOR_NC1HWC2) {
-        int   channel = orig_output_attrs[i].dims[1];
-        int   h       = orig_output_attrs[i].n_dims > 2 ? orig_output_attrs[i].dims[2] : 1;
-        int   w       = orig_output_attrs[i].n_dims > 3 ? orig_output_attrs[i].dims[3] : 1;
-        if (orig_output_attrs[i].type == RKNN_TENSOR_INT8) {
-          NC1HWC2_i8_to_NHWC_i8((int8_t*)output_mems[i]->virt_addr, (int8_t*)output_mems_nhwc[i],
-                                  (int*)output_attrs[i].dims, channel, h, w);
-        } else {
-          printf("output dtype: %s not support!\n", get_type_string(orig_output_attrs[i].type));
-          ret =-1; 
-        }
-      } else {
-          printf("output fmt: %s not support!\n", get_format_string(output_attrs[i].fmt));
-          ret =-1; 
-      }
-    }
-    if(ret < 0) {
-      for (uint32_t i = 0; i < io_num.n_output; ++i) {
-        free(output_mems_nhwc[i]);
-      }
-      goto out;
-    }
-    post_process((int8_t *)output_mems_nhwc[0], (int8_t *)output_mems_nhwc[1], (int8_t *)output_mems_nhwc[2], model_height, model_width,
-               box_conf_threshold, nms_threshold, scale_w, scale_h, out_zps, out_scales, &detect_result_group);
-
-    for (uint32_t i = 0; i < io_num.n_output; ++i){
-      free(output_mems_nhwc[i]);
-    }
+    post_process((int8_t *)output_mems[0]->virt_addr, (int8_t *)output_mems[1]->virt_addr, (int8_t *)output_mems[2]->virt_addr, 
+      model_height, model_width, box_conf_threshold, nms_threshold, scale_w, scale_h, out_zps, out_scales, &detect_result_group, dim);
 
 #endif
+   elapse_us = getCurrentTimeUs() - start_us;
+   printf(" post_process Time = %.2fms, FPS = %.2f\n",  elapse_us / 1000.f, 1000.f * 1000.f / elapse_us);
+
 
   char text[256];
   for (int i = 0; i < detect_result_group.count; i++)
