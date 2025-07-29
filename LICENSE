@@ -1,5 +1,44 @@
-**Copyright Statement**
+RKNN SDK License
 
-Copyright(C) 2024 Rockchip Electronics Co., Ltd. All rights reserved.
+This License Agreement for RKNN Software Development Kit Package (this “Agreement”) is a legally binding agreement between Rockchip Electronics Co., Ltd. (“Rockchip”) and the person or legal entity You represent (“You”).
 
-BY OPENING OR USING THIS FILE, RECEIVER HEREBY ACKNOWLEDGES AND AGREES THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("ROCKCHIP SOFTWARE") RECEIVED FROM ROCKCHIP ON AN "AS-IS" BASIS ONLY WITHOUT ANY AND ALL WARRANTIES, EITHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, WITHOUT LIMITATION, ANY WARRANTY OR CONDITION WITH RESPECT TO TITLE, MERCHANTABILITY, FITNESS FOR ANY PARTICULAR PURPOSE, OR NON-INFRINGEMENT. NEITHER DOES ROCKCHIP PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO ANY OPEN SOURCE TECHNOLOGIES, THIRD-PARTY TECHNOLOGIES OR ANY STANDARD TECHNOLOGIES WHICH MAY BE SUPPORTED BY, INCORPORATED IN, OR SUPPLIED WITH THE ROCKCHIP SOFTWARE. RECEIVER EXPRESSLY ACKNOWLEDGES THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN AND MAINTAIN ALL NECESSARY LICENSES AND RIGHTS FROM THEIR RESPECTIVE OWNERS TO USE ANY SUCH THIRD-PARTY TECHNOLOGIES OR ANY STANDARD TECHNOLOGIES. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND ROCKCHIP'S ENTIRE AND CUMULATIVE LIABILITY WITH RESPECT TO THE ROCKCHIP SOFTWARE RELEASED HEREUNDER WILL BE, AT ROCKCHIP 'S OPTION, TO REVISE OR REPLACE THE ROCKCHIP SOFTWARE AT ISSUE, OR REFUND ANY FEES OR CHARGE PAID BY RECEIVER TO ROCKCHIP FOR SUCH ROCKCHIP SOFTWARE AT ISSUE.
+DO NOT DOWNLOAD, INSTALL OR USE THE RKNN SOFTWARE DEVELOPMENT KIT PACKAGE (THE “SOFTWARE) UNTIL YOU HAVE CAREFULLY READ AND ACCEPTED THIS AGREEMENT. BY DOWNLOADLING, INSTALLING OR USING THE SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ AND AGREED TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO ALL OF THE TERMS AND CONDITIONS OF THIS AGREEMENT, CANCEL THE DOWNLOADLING, INSTALLING OR USING OF THE SOFTWARE.
+
+1. License Grant
+1.1 Subject to the terms and conditions of this Agreement, Rockchip hereby grants to You a limited, non-exclusive, royalty-free copyright license to use, reproduce, modify, and create derivative works of the Software and redistribute its modifications or derivative works that are made by You solely for the design, development and testing of applications that are compatible with Products (as defined below) of Rockchip or its affiliates.
+1.2 Subject to the terms and conditions of this Agreement, You may reproduce and use, on an internal basis only, a reasonable number of copies of the documentation made available by Rockchip in connection with Software (“Documentation”’), solely in support of the license to the Software.
+1.3 Except as expressly provided in this Agreement, no other license is granted explicitly, by implication, or otherwise under any intellectual property rights, including patent or copyrights.
+
+2. License Restrictions
+2.1 Except as expressively granted in this Agreement or expressively authorized by Rockchip in writing, You may NOT:
+(a)decompile, reverse-engineer, dissemble, or attempt to derive any source code from the Software;
+(b) remove or obscure any copyright, patent, or trademark statement or notice associated with the Software;
+(c) use Third Party Software (as defined below), Open Source Software (as defined below) in any manner other than as permitted in this Agreement.
+2.2 The Software may contain Third Party Software that are proprietary to third parties or subjected to separate licenses and restrictions from third parties for any types of usages. The license terms associated with those software apply to Your use of them, and in some instances such software cannot be used or further distributed without a license from the respective owner of such third party software. You shall be solely responsible to obtain, if necessary, a separate and independent license from such owner with respect to any such use. The delivery of the Software does not convey a license, nor imply any rights, to use Third Party Software. 
+2.3 The Software may contain Open Source Software that is licensed pursuant to the applicable Open Source Software license agreement(s) (such as BSD, GPL, MIT etc.), which are either identified in the Open Source Software comments in the applicable source code file(s) and/or file header(s). With respect to the Open Source Software, nothing in this Agreement limits any rights under, or grants rights that supersede, the terms of any applicable Open Source Software license agreement(s). You must comply with Open Source Software licenses that may prevail over the terms of this Agreement. In no event may You cause any part of the Software that is not Open Source Software to become Open Source Software. 
+
+3. Updates, Upgrades and Support Services
+3.1 Rockchip may, in its sole discretion, release any updates, upgrades, or new versions of the Software and/or Documentation at any time on the website. If You decide to download, intall or use any updates, upgrades, or new versions of the Software and/or Documentation, the terms and conditions of this Agreement will govern such updates, upgrades, or new versions.
+3.2 Rockchip is under no obligation to provide any form of technical support for the Software and/or Documentation.
+
+4. Ownership 
+Rockchip and/or its licensor(s) retain all rights, titles, and interests in and to the Software and/or Documentation and its updates, upgrades. 
+
+5. No Warranties
+YOU EXPRESSLY ACKNOWLEDGE AND AGREE THAT THE USE OF THE SOFTWARE AND DOCUMENTATION IS AT YOUR SOLE RISK. THE SOFTWARE AND DOCUMENTATION IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL ROCKCHIP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE AND DOCUMENTATION.
+
+6. Indemnifications
+You should indemnify, hold harmless, and defend Rockchip from and against any claims, damages, losses, liabilities, obligations, and costs (including attorney fees) associated with an allegation arising out of Your failure to adhere to the terms and conditions of this Agreement.
+
+7. Feedback
+If You provide Rockchip with any feedback, suggestions, comments, ideas, reviews, bug reports, or any similar or related information (“Feedback”), You agree that: (a) Rockhip will be able to free use and share such Feedback without Your consent; (b) Rockchip will have no obligation to keep confidentiality to such Feedback. If You do not agree with these terms regarding Feedback, Your sole option is to not submit such specific Feedback to Rockchip.
+
+8. Export Controls
+You acknowledge that all hardware, software, source code and technology (collectively, "Products") obtained from Rockchip or its affiliates may be subject to the applicable export control laws and regulations of the U.N., P.R.C., U.S., E.U., and/or other countries, as amended (collectively, the “Export Control and Economic Sanctions Laws and Regulations”). You shall comply with any applicable Export Control and Economic Sanctions Laws and Regulations, when using, exporting, re-exporting, selling, or otherwise disposing of the Products and fulfilling the rights and obligations under this Agreement. You assure that You will not directly or indirectly export, re-export, transfer or release (collectively, "export") any Products to any destination, person, entity or end use prohibited or restricted under Export Control and Economic Sanctions Laws and Regulations in violation of these laws and regulations. You further acknowledge that You are not a person or entity that is listed on any applicable sanctions lists. This section shall survive the termination of this Agreement.
+
+9. Term and Termination
+9.1 This Agreement will come into effect on the date You accept this Agreement and shall continue until terminated. This Agreement terminates immediately and automatically, with or without notice, if You fail to comply with any provision hereof. Additionally, Rockchip may at any time terminate this Agreement, either with or without cause, upon notice to You.
+9.2 Upon termination of this Agreement, You must delete or destroy all copies of the Software and Documentation in Your possession, and the license and other rights granted to You in this Agreement shall terminate.
+
+10. Governing Law and Jurisdiction
+This Agreement will be governed by and construed in accordance with the laws of the People’s Republic of China (“PRC”), without regard to principles of conflict of laws. You agree that any dispute arising out of or in connection with this Agreement will be decided to a court of competent jurisdiction which located in Fuzhou City, PRC.
