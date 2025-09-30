@@ -39,7 +39,7 @@ Note:
 
 # Download
 - You can also download all packages, docker image, examples, docs and platform-tools from [RKNPU2_SDK](https://console.zbox.filez.com/l/I00fc3), fetch code: rknn
-- You can get more examples from [rknn mode zoo](https://github.com/airockchip/rknn_model_zoo)
+- You can get more examples from [rknn model zoo](https://github.com/airockchip/rknn_model_zoo)
 
 # Notes
 - RKNN-Toolkit2 is not compatible with [RKNN-Toolkit](https://github.com/airockchip/rknn-toolkit)
