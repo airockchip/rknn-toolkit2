@@ -1,12 +1,7 @@
 /****************************************************************************
 *
-*    Copyright (c) 2017 - 2022 by Rockchip Corp.  All rights reserved.
-*
-*    The material in this file is confidential and contains trade secrets
-*    of Rockchip Corporation. This is proprietary information owned by
-*    Rockchip Corporation. No part of this work may be disclosed,
-*    reproduced, copied, transmitted, or used in any way for any purpose,
-*    without the express written permission of Rockchip Corporation.
+*    Copyright (c) 2026 by Rockchip Electronics Co., Ltd.
+*    All rights reserved.
 *
 *****************************************************************************/
 
@@ -113,6 +108,9 @@ extern "C" {
 #define RKNN_ERR_INCOMPATILE_PRE_COMPILE_MODEL  -11     /* This RKNN model use pre_compile mode, but not compatible with current driver. */
 #define RKNN_ERR_INCOMPATILE_OPTIMIZATION_LEVEL_VERSION  -12     /* This RKNN model set optimization level, but not compatible with current driver. */
 #define RKNN_ERR_TARGET_PLATFORM_UNMATCH        -13     /* This RKNN model set target platform, but not compatible with current platform. */
+#define RKNN_ERR_KEY_INVALID                    -14     /* The decryption key envelope is invalid or could not be parsed. */
+#define RKNN_ERR_DECRYPT_FAILED                 -15     /* Model or key-envelope decryption failed. */
+#define RKNN_ERR_SOC_BIND_FAILED                -16     /* Current SoC platform does not match any bound platform (SoC bind failure). */
 
 /*
     Definition for tensor
@@ -443,16 +441,29 @@ typedef struct _rknn_output {
 } rknn_output;
 
 /*
+    Helper struct for passing the encrypted-model key envelope to rknn_init
+    via rknn_init_extend.user_key.
+*/
+typedef struct _rknn_decrypt_key_mem {
+    void*       key_data;                                /* pointer to the RKKE key-envelope memory */
+    uint32_t    key_size;                                /* length of the envelope in bytes */
+} rknn_decrypt_key_mem;
+
+/*
     the extend information for rknn_init.
 */
 typedef struct _rknn_init_extend {
-    rknn_context ctx;                                    /* rknn context */
-    int32_t      real_model_offset;                      /* real rknn model file offset, only valid when init context with rknn file path and zero-copy model model */
-    uint32_t     real_model_size;                        /* real rknn model file size, only valid when init context with rknn file path and zero-copy model model */
-    int32_t      model_buffer_fd;                        /* the fd of model buffer. */
-    uint32_t     model_buffer_flags;                     /* the flags of model_buffer */
-    uint8_t      reserved[112];                          /* reserved */
+    rknn_context            ctx;                                    /* rknn context */
+    int32_t                 real_model_offset;                      /* real rknn model file offset, only valid when init context with rknn file path and zero-copy model model */
+    uint32_t                real_model_size;                        /* real rknn model file size, only valid when init context with rknn file path and zero-copy model model */
+    int32_t                 model_buffer_fd;                        /* the fd of model buffer. */
+    uint32_t                model_buffer_flags;                     /* the flags of model_buffer */
+    rknn_decrypt_key_mem*   user_key;                               /* pointer to user-supplied encryption key material
+                                                                       (rknn_decrypt_key_mem*). Used for RKCE encrypted
+                                                                       models. NULL for plaintext models. */
+    uint8_t                 reserved[112];                          /* reserved */
 } rknn_init_extend;
+
 
 /*
     the extend information for rknn_run.

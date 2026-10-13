@@ -2,6 +2,7 @@
 
 # base deps
 protobuf==3.20.3
+setuptools<80.1.0
 
 # utils
 psutil>=5.9.0
@@ -14,6 +15,5 @@ numpy<=1.26.4
 
 # base
 onnx==1.14.1
-onnxoptimizer==0.2.7
 onnxruntime==1.14.1
 torch>=1.10.1,<=2.1.0

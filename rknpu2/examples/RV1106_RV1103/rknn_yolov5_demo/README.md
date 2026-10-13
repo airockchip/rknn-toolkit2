@@ -16,7 +16,7 @@ The 'build-linux.sh' can be used for compiling demo for target including RV1106 
 Changing the cross compiler path via the setting the `RK_RV1106_TOOLCHAIN`, shown as below:
 
 ```sh
-export RK_RV1106_TOOLCHAIN=~/opts/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf
+export RK_RV1106_TOOLCHAIN=~/opts/toolchain/arm-rockchip831-linux-uclibcgnueabihf/bin/arm-rockchip831-linux-uclibcgnueabihf
 ```
 
 then, run the script：
@@ -25,7 +25,7 @@ then, run the script：
 ./build-linux.sh -t <TARGET_PLATFORM> -b Release
 ```
 
-Note: The RV1106 and RV1103 requires this 'arm-rockchip830-linux-uclibcgnueabihf' compiler to build the demo or another applications. 
+Note: The RV1106 and RV1103 requires this 'arm-rockchip831-linux-uclibcgnueabihf' compiler to build the demo or another applications. 
 
 ### Push build output files to the board
 

@@ -14,7 +14,7 @@
 RV1106/RV1103编译脚本均为 `build-linux.sh`，设置交叉编译器所在目录的路径 `RK_RV1106_TOOLCHAIN`，例如修改成
 
 ```sh
-export RK_RV1106_TOOLCHAIN=~/opts/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf
+export RK_RV1106_TOOLCHAIN=~/opts/toolchain/arm-rockchip831-linux-uclibcgnueabihf/bin/arm-rockchip831-linux-uclibcgnueabihf
 ```
 
 然后执行：

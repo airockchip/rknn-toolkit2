@@ -33,7 +33,7 @@ done
 if [ -z ${TARGET_SOC} ]  || [ -z ${TARGET_ARCH} ] ; then
   echo "$0 -t <target> -a <arch> [-b <build_type>]"
   echo ""
-  echo "    -t : target (rk3566/rk3568/rk3562/rk3576/rk3588)"
+  echo "    -t : target (rk3566/rk3568/rk3562/rk3576/rk3588/rv1126b)"
   echo "    -a : arch (arm64-v8a/armeabi-v7a)"
   echo "    -b : build_type (Debug/Release)"
   echo "such as: $0  -t rk3588 -a arm64-v8a -b Release"
@@ -70,7 +70,7 @@ case ${TARGET_SOC} in
         ;;
     *)
         echo "Invalid target: ${TARGET_SOC}"
-        echo "Valid target: rk3562,rk3566,rk3568,rk3576,rk3588"
+        echo "Valid target: rk3562,rk3566,rk3568,rk3576,rk3588,rv1126b"
         exit -1
         ;;
 esac

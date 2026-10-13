@@ -1,7 +1,8 @@
 # if install failed, please change the pip source to 'https://mirror.baidu.com/pypi/simple'
 
 # base deps
-protobuf==3.20.3
+protobuf>=4.21.0,<=4.25.4
+setuptools<80.1.0
 
 # utils
 psutil>=5.9.0
@@ -14,7 +15,6 @@ Pillow>=10.0.1
 numpy<=1.26.4
 
 # base
-onnx==1.16.1
-onnxoptimizer==0.3.8
+onnx>=1.16.1,<=1.18.0
 onnxruntime>=1.16.0
 torch>=1.13.1,<=2.2.0

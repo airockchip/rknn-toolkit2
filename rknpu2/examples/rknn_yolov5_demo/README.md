@@ -2,7 +2,7 @@
 
 ## Guide for exporting rknn model
 
-Please refer to this link:  https://github.com/airockchip/rknn_model_zoo/tree/main/models/CV/object_detection/yolo
+Please refer to this link:  https://github.com/airockchip/rknn_model_zoo/tree/main/examples/yolov5
 
 ## Precautions
 

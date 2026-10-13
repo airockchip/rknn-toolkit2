@@ -4,6 +4,13 @@
 The model used in this example come from 'gen_pb.py'.
 
 ## Script Usage
+To regenerate the frozen model and input arrays, run:
+```
+python gen_pb.py
+```
+The generator uses TensorFlow 1.x graph APIs and selects `tf.compat.v1` when running with TensorFlow 2.x.
+The generated `input2.npy` and `input3.npy` use NCHW layout, as required by RKNN calibration and inference.
+
 *Usage:*
 ```
 python test.py

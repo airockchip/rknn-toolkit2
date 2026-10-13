@@ -4,7 +4,7 @@ set -e
 if [ -z $RK_RV1106_TOOLCHAIN ]; then
   echo "Please set the RK_RV1106_TOOLCHAIN environment variable!"
   echo "example:"
-  echo "  export RK_RV1106_TOOLCHAIN=<path-to-your-dir/arm-rockchip830-linux-uclibcgnueabihf>"
+  echo "  export RK_RV1106_TOOLCHAIN=<path-to-your-dir/arm-rockchip831-linux-uclibcgnueabihf>"
   exit
 fi
 

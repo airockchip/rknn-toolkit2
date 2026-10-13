@@ -63,10 +63,6 @@ if __name__ == '__main__':
         exit(ret)
     print('done')
 
-    # Export encrypted RKNN model
-    print('--> Export encrypted rknn model')
-    ret = rknn.export_encrypted_rknn_model('./mobilenet_v2.rknn', None, 3)
-
     rknn.release()
 
 

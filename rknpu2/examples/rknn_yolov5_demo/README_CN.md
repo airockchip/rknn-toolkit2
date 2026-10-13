@@ -2,7 +2,7 @@
 
 ## 导出rknn模型步骤
 
-请参考 https://github.com/airockchip/rknn_model_zoo/tree/main/models/CV/object_detection/yolo
+请参考 https://github.com/airockchip/rknn_model_zoo/tree/main/examples/yolov5 
 
 
 ## 注意事项

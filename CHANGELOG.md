@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v2.5.0
+
+- Update RKNN model encryption 
+
+- Support mini-runtime for RV1126B / RK3562 with `mini_rknn` model conversion 
+
+- Optimize CPU load for full runtime for multi-input/output models 
+
+- Support QAT sparse inference
+
+- Improve operator support: GRU (NPU/GPU, multi-batch), GridSample (GPU), Sin/Cos, ReduceMax, CumSum, DepthToSpace, And, ReduceLogSumExp (CPU), Transpose, Reshape, Pow/TopK (CPU), exNorm, etc
+
+- Support model conversion with/without first conv, enable core0 only and fp16 positve weight share option 
+
+- Improve graph optimization: update model conversion and fusion rules for better conversion quality on some models
+
+- MatMul API: support RV1126B and w4a8/w4a16 for RK3562  
+
+- Fix runtime issues: dma-buf/fd and error-path memory leaks, bugfix for internal mem reuse    
+
+- Improve operator support, including Conv, LSTM, Transpose, GRU, BN, ALU, Pooling for RK2118
+
+- Bugfix
+
+
 ## v2.3.2
 
 - Support for RV1126B platform
@@ -20,7 +45,7 @@
 
 - Add support for W4A16 symmetric quantization (RK3576)
 
-- Operator optimization, such as LayerNorm, LSTM, Transpose, MatMul, etc.
+- Operator optimization, such as LayerNorm, LSTM, Transpose, MatMul, etc
 
 
 
@@ -32,7 +57,7 @@
 
 - Support Python 3.12
 
-- Operator optimization, such as softmax, hardmax, MatMul, etc.
+- Operator optimization, such as softmax, hardmax, MatMul, etc
 
 
 
@@ -59,7 +84,7 @@
  - Support SDPA (Scaled Dot Product Attention) to improve transformer performance
  - Improve custom operators support
  - Improve MatMul API
- - Improve support for Reshape,Transpose,BatchLayernorm,Softmax,Deconv,Matmul,ScatterND etc.
+ - Improve support for Reshape,Transpose,BatchLayernorm,Softmax,Deconv,Matmul,ScatterND etc
  - Support pytorch 2.1
  - Improve support for QAT models of pytorch and onnx
  - Optimize automatic generation of C++ code
@@ -70,16 +95,16 @@
 
  - Support ONNX model of OPSET 12~19
  - Support custom operators (including CPU and GPU)
- - Improve support for dynamic weight convolution, Layernorm, RoiAlign, Softmax, ReduceL2, Gelu, GLU, etc.
+ - Improve support for dynamic weight convolution, Layernorm, RoiAlign, Softmax, ReduceL2, Gelu, GLU, etc
  - Added support for python3.7/3.9/3.11
  - Add rknn_convert function
  - Improve transformer support
- - Improve MatMul API, such as increasing the K limit length, RK3588 adding int4 * int4 -> int16 support, etc.
- - Reduce RV1106 rknn_init initialization time, memory consumption, etc.
+ - Improve MatMul API, such as increasing the K limit length, RK3588 adding int4 * int4 -> int16 support, etc
+ - Reduce RV1106 rknn_init initialization time, memory consumption, etc
  - RV1106 adds int16 support for some operators
  - Fixed the problem that the convolution operator of RV1106 platform may make random errors in some cases.
  - Improve user manual
- - Reconstruct the rknn model zoo and add support for multiple models such as detection, segmentation, OCR, and license plate recognition.
+ - Reconstruct the rknn model zoo and add support for multiple models such as detection, segmentation, OCR, and license plate recognition
 
 
 
@@ -112,21 +137,21 @@
 
 ## v1.4.0
 
-- Support more NPU operators, such as Reshape、Transpose、MatMul、 Max、Min、exGelu、exSoftmax13、Resize etc.
+- Support more NPU operators, such as Reshape、Transpose、MatMul、 Max、Min、exGelu、exSoftmax13、Resize etc
 
-- Add **Weight Share**  function, reduce memory usage.
+- Add **Weight Share**  function, reduce memory usage
 
 - Add **Weight Compression** function, reduce memory and bandwidth usage.(RK3588/RV1103/RV1106)
 
-- RK3588 supports storing weights or feature maps on SRAM, reducing system bandwidth consumption.
+- RK3588 supports storing weights or feature maps on SRAM, reducing system bandwidth consumption
 
-- RK3588 adds the function of running a single model on multiple cores at the same time.
+- RK3588 adds the function of running a single model on multiple cores at the same time
 
-- Add new output layout NHWC (C has alignment restrictions) .
+- Add new output layout NHWC (C has alignment restrictions) 
 
-- Improve support for non-4D input.
+- Improve support for non-4D input
 
-- Add more examples such as rknn_yolov5_android_apk_demo and rknn_internal_mem_reuse_demo.
+- Add more examples such as rknn_yolov5_android_apk_demo and rknn_internal_mem_reuse_demo
 
 - Bug fix.
 
@@ -137,9 +162,9 @@
 - Support RV1103/RV1106（Beta SDK）
 - rknn_tensor_attr support w_stride(rename from stride) and h_stride
 - Rename rknn_destroy_mem()
-- Support more NPU operators, such as Where, Resize, Pad, Reshape, Transpose etc.
+- Support more NPU operators, such as Where, Resize, Pad, Reshape, Transpose etc
 - RK3588 support multi-batch multi-core mode
-- When RKNN_LOG_LEVEL=4, it supports to display the MACs utilization and bandwidth occupation of each layer.
+- When RKNN_LOG_LEVEL=4, it supports to display the MACs utilization and bandwidth occupation of each layer
 - Bug fix
 
 
@@ -147,7 +172,7 @@
 ## v1.2.0
 
 - Support RK3588
-- Support more operators, such as GRU、Swish、LayerNorm etc.
+- Support more operators, such as GRU、Swish、LayerNorm etc
 - Reduce memory usage
 - Improve zero-copy interface implementation
 - Bug fix
@@ -182,7 +207,7 @@
 
 ## v0.7
 
-- Optimize the performance of rknn_inputs_set(), especially for models whose input width is 8-byte aligned.
+- Optimize the performance of rknn_inputs_set(), especially for models whose input width is 8-byte aligned
 
 - Add new OP support, see OP support list document for details.
 

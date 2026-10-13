@@ -16,7 +16,6 @@ python test.py
 
 ## Expected Results
 This example would output the following results:
-- Output encrypted rknn model: mobilenet_v2.crypt.rknn
 - List devices that connect to host
     ```
     *************************

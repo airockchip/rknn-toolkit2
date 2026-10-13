@@ -7,7 +7,10 @@ import tensorflow as tf
 import numpy as np
 from numpy import random as nr
 import cv2
-from tensorflow.python.framework import graph_util
+
+if int(tf.__version__.split('.')[0]) >= 2:
+    tf = tf.compat.v1
+    tf.disable_v2_behavior()
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -61,18 +64,19 @@ def train():
     my_input1 = img
 
     x2 = tf.placeholder(tf.float32, [1, inHeight, inWidth, 3], name="input2")
-    #my_input2 = np.ones([1, inHeight, inWidth, 5],dtype=np.float)
-    #my_input2 = np.zeros([1, inHeight, inWidth, 5], dtype=np.float)
-    my_input2 = nr.rand(1, inHeight, inWidth, 3)  # np.ones([1, inHeight, inWidth, 5],dtype=np.float)
+    #my_input2 = np.ones([1, inHeight, inWidth, 5],dtype=np.float32)
+    #my_input2 = np.zeros([1, inHeight, inWidth, 5], dtype=np.float32)
+    my_input2 = nr.rand(1, inHeight, inWidth, 3)  # np.ones([1, inHeight, inWidth, 5],dtype=np.float32)
     my_input2 = (my_input2 - 0.5) * 2
-    np.save('input2.npy', my_input2)
+    # RKNN calibration and inference expect NCHW; TensorFlow feeds use NHWC.
+    np.save('input2.npy', my_input2.transpose(0, 3, 1, 2))
 
     x3 = tf.placeholder(tf.float32, [1, inHeight, inWidth, 3], name="input3")
-    #my_input3 = np.ones([1, inHeight, inWidth, 4], dtype=np.float)
-    #my_input3 = np.zeros([1, inHeight, inWidth, 4], dtype=np.float)
+    #my_input3 = np.ones([1, inHeight, inWidth, 4], dtype=np.float32)
+    #my_input3 = np.zeros([1, inHeight, inWidth, 4], dtype=np.float32)
     my_input3 = nr.rand(1, inHeight, inWidth, 3)
     my_input3 = (my_input3 - 0.5) * 2
-    np.save('input3.npy', my_input3)
+    np.save('input3.npy', my_input3.transpose(0, 3, 1, 2))
     
     x4 = tf.placeholder(tf.float32,[1,inHeight,inWidth,1],name="input4")
     my_input4 = img_gray
@@ -80,7 +84,7 @@ def train():
     layerNum = 1
     outShape=outputShape[layerNum]
     y = tf.placeholder(tf.float32,[1,outShape[2],outShape[1],outShape[0]])
-    my_label = np.ones([1,outShape[2],outShape[1],outShape[0]],dtype=np.float)
+    my_label = np.ones([1,outShape[2],outShape[1],outShape[0]],dtype=np.float32)
     
 
     predict_res = newtork(x1, x2, x3, x4)
@@ -98,7 +102,7 @@ def train():
         print(predict_res)
         print([n.name for n in tf.get_default_graph().as_graph_def().node])
         
-        constant_graph = graph_util.convert_variables_to_constants(sess, sess.graph_def, output_node_names=['output'])
+        constant_graph = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, output_node_names=['output'])
         with tf.gfile.GFile(pb_name, mode='wb') as f:
             f.write(constant_graph.SerializeToString())
             

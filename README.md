@@ -51,7 +51,7 @@ Note:
   - Python 3.10
   - Python 3.11
   - Python 3.12
-- Latest version:v2.3.2
+- Latest version:v2.5.0
 
 
 
@@ -65,26 +65,36 @@ https://github.com/airockchip/rknn-llm
 
 # CHANGELOG
 
-## v2.3.2
-- Support for RV1126B platform
-- Improved einsum and Norm operations support
-- Added automatic mixed precision functionality
-- Enhanced graph optimization capabilities
+## v2.5.0
+
+- Update RKNN model encryption 
+- Support mini-runtime for RV1126B / RK3562 with `mini_rknn` model conversion 
+- Optimize CPU load for full runtime for multi-input/output models 
+- Support QAT sparse inference
+- Improve operator support: GRU (NPU/GPU, multi-batch), GridSample (GPU), Sin/Cos, ReduceMax, CumSum, DepthToSpace, And, ReduceLogSumExp (CPU), Transpose, Reshape, Pow/TopK (CPU), exNorm, etc
+- Support model conversion with/without first conv, enable core0 only and fp16 positve weight share option 
+- Improve graph optimization: update model conversion and fusion rules for better conversion quality on some models
+- MatMul API: support RV1126B and w4a8/w4a16 for RK3562  
+- Fix runtime issues: dma-buf/fd and error-path memory leaks, bugfix for internal mem reuse    
+- Improve operator support, including Conv, LSTM, Transpose, GRU, BN, ALU, Pooling for RK2118
+- Bugfix
       
 
  for older version, please refer [CHANGELOG](CHANGELOG.md)
 
 # Feedback and Community Support
 - [Redmine](https://redmine.rock-chips.com) (**Feedback recommended, Please consult our sales or FAE for the redmine account**)
-- QQ Group Chat: 1025468710 (full, please join group 4)
-- QQ Group Chat2: 547021958 (full, please join group 4)
-- QQ Group Chat3: 469385426 (full, please join group 4)
-- QQ Group Chat4: 958083853
+- QQ Group Chat: 1025468710 (full, please join group 5)
+- QQ Group Chat2: 547021958 (full, please join group 5)
+- QQ Group Chat3: 469385426 (full, please join group 5)
+- QQ Group Chat4: 958083853 (full, please join group 5)
+- QQ Group Chat5: 1077888690 
 <center class="half">
   <img width="200" height="200"  src="res/QQGroupQRCode.png" title="QQ Group Chat"/>
   <img width="200" height="200"  src="res/QQGroup2QRCode.png" title="QQ Group Chat2"/>
   <img width="200" height="200"  src="res/QQGroup3QRCode.png" title="QQ Group Chat3"/>
   <img width="200" height="200"  src="res/QQGroup4QRCode.png" title="QQ Group Chat4"/>
+  <img width="200" height="200"  src="res/QQGroup5QRCode.png" title="QQ Group Chat5"/>
 </center>
 
 
