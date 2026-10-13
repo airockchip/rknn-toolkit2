@@ -147,11 +147,13 @@ static int8_t get_virt_addr_int4(void *virt_addr, int index)
   int8_t int4 = 0;
   if (index % 2 == 0)
   {
-    int4 = (((int8_t *)virt_addr)[index / 2] >> 4) & 0xf;
+    // low-nibble-first: even index in low nibble
+    int4 = (((int8_t *)virt_addr)[index / 2]) & 0xf;
   }
   else
   {
-    int4 = (((int8_t *)virt_addr)[index / 2]) & 0xf;
+    // odd index in high nibble
+    int4 = ((((int8_t *)virt_addr)[index / 2]) >> 4) & 0xf;
   }
   if (int4 & 0x8)
   {
@@ -875,6 +877,7 @@ int main(int argc, char *argv[])
         info.type == RKNN_INT4_MM_INT4_TO_INT16 || info.type == RKNN_FLOAT16_MM_INT4_TO_FLOAT16)
     {
       int size = io_attr.B.dims[1] * io_attr.B.dims[0];
+      (void)size; // unused, keep for symmetry with other branch
       memcpy(B_Matrix_, B_Matrix, K * N * B_type_bytes);
       set_mem_from_int8_to_int4((int8_t *)B_Matrix_, (int8_t *)B_Matrix, K * N);
       rknn_B_normal_layout_to_native_layout(B_Matrix_, B->virt_addr, K, N, &info);
@@ -983,9 +986,38 @@ int main(int argc, char *argv[])
     }
     std::vector<int16_t> npu_res(npu_res_ptr, npu_res_ptr + M * N);
 
-    std::vector<int16_t> cpu_res;
-    cpu_res.reserve(M * N);
-    cpu_res = matrixMultiply<int8_t, int16_t>((const int8_t *)A_Matrix, (const int8_t *)B_Matrix, M, K, N);
+
+    // std::vector<int16_t> cpu_res;
+    // cpu_res.reserve(M * N);
+    // cpu_res = matrixMultiply<int8_t, int16_t>((const int8_t *)A_Matrix, (const int8_t *)B_Matrix, M, K, N);
+
+    // Minimal: rebuild CPU-reference only for B from device buffer; A uses original A_Matrix
+    std::vector<int8_t> B_norm(static_cast<size_t>(K) * N);
+    void *bbase = (void *)((size_t)B->virt_addr + B->offset);
+    if (info.B_layout == 0 && io_attr.B.n_dims == 2)
+    {
+      for (int idx = 0; idx < K * N; ++idx)
+        B_norm[idx] = get_virt_addr_int4(bbase, idx);
+    }
+    else
+    {
+      int N1 = io_attr.B.dims[0], K1 = io_attr.B.dims[1], subN = io_attr.B.dims[2], subK = io_attr.B.dims[3];
+      int total = N1 * K1 * subN * subK;
+      for (int p = 0; p < total; ++p)
+      {
+        int kk = p % subK;
+        int t1 = p / subK;
+        int nn = t1 % subN;
+        int t2 = t1 / subN;
+        int k1 = t2 % K1;
+        int n1 = t2 / K1;
+        int n_ = n1 * subN + nn;
+        int k_ = k1 * subK + kk;
+        if (k_ < K && n_ < N)
+          B_norm[k_ * N + n_] = get_virt_addr_int4(bbase, p);
+      }
+    }
+    std::vector<int16_t> cpu_res = matrixMultiply<int8_t, int16_t>((const int8_t *)A_Matrix, B_norm.data(), M, K, N);
 
     if (arraysEqual<int16_t>(cpu_res, npu_res))
     {
